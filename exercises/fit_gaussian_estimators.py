@@ -7,24 +7,28 @@ pio.templates.default = "simple_white"
 
 def test_univariate_gaussian():
     # Question 1 - Draw samples and print fitted model
-    raise NotImplementedError()
+
+    uni_g = UnivariateGaussian()
+    uni_g.fit(np.random.normal(0, 1, 1000))
+    print(f"({uni_g.mu_}, {uni_g.var_})")
 
     # Question 2 - Empirically showing sample mean is consistent
-    raise NotImplementedError()
+    #raise NotImplementedError()
 
     # Question 3 - Plotting Empirical PDF of fitted model
-    raise NotImplementedError()
+    #raise NotImplementedError()
 
 
 def test_multivariate_gaussian():
-    # Question 4 - Draw samples and print fitted model
-    raise NotImplementedError()
-
-    # Question 5 - Likelihood evaluation
-    raise NotImplementedError()
-
-    # Question 6 - Maximum likelihood
-    raise NotImplementedError()
+    pass
+    # # Question 4 - Draw samples and print fitted model
+    # raise NotImplementedError()
+    #
+    # # Question 5 - Likelihood evaluation
+    # raise NotImplementedError()
+    #
+    # # Question 6 - Maximum likelihood
+    # raise NotImplementedError()
 
 
 if __name__ == '__main__':
