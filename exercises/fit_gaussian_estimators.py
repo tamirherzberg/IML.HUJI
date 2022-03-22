@@ -9,7 +9,7 @@ def test_univariate_gaussian():
     # Question 1 - Draw samples and print fitted model
 
     uni_g = UnivariateGaussian()
-    uni_g.fit(np.random.normal(0, 1, 1000))
+    uni_g.fit(np.random.normal(10, 1, 1000))
     print(f"({uni_g.mu_}, {uni_g.var_})")
 
     # Question 2 - Empirically showing sample mean is consistent
