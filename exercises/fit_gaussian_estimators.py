@@ -3,6 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
+import scipy.stats as sct
 
 pio.renderers.default = "chrome"  # didn't show it to me otherwise
 pio.templates.default = "simple_white"
@@ -48,21 +49,26 @@ def test_multivariate_gaussian():
 
     # Question 5 - Likelihood evaluation
     lh_values = []
+    builtin = [] #### debug
     rng = np.linspace(-10, 10, 200)  # f1,f3 values range
     for f1 in rng:
         row = []
+        builtin_row = []  ### debug
         for f3 in rng:
             alt_mu = np.array([f1, 0, f3, 0])
+            builtin_row.append(sct.multivariate_normal.logpdf(Y, alt_mu, true_cov)) ### debug
             row.append(mv_g.log_likelihood(alt_mu, true_cov, Y))
         lh_values.append(row)
+        builtin.append(builtin_row) ### debug
     go.Figure(go.Heatmap(x=rng, y=rng, z=lh_values), layout=go.Layout(
         title="5) Log-likelihood As A Function Of f1, f3 Values",
         xaxis_title="f1 value",
         yaxis_title="f3 value"
     )).show()
-
+    # t = np.array([[1,2,3,4], [5,6,-7,-8], [9,10,0,1]]) #### debug
+    # print(mv_g.log_likelihood(alt_mu, true_cov, t) )#### debug
     # Question 6 - Maximum likelihood
-    # raise NotImplementedError()
+    # np.argmax(lh_values, axis=2)
 
 
 if __name__ == '__main__':

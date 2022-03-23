@@ -209,4 +209,4 @@ class MultivariateGaussian:
         # according to the formula developed in theoretical q9
         sign, res = slogdet(cov)
         return\
-            (-m / 2) * (d * np.log(2 * np.pi) + sign * res) - 0.5 * (np.sum(A @ inv(cov) @ A.T))
+            (-m / 2) * (d * np.log(2 * np.pi) + sign * res) - 0.5 * (np.sum(A @ inv(cov) * A))
