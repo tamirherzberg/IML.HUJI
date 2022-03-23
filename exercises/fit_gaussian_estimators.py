@@ -31,7 +31,7 @@ def test_univariate_gaussian():
               layout=go.Layout(
                   title="3) Empirical PDF Of Fitted Model",
                   xaxis_title="Samples",
-                  yaxis_title="Density")).show()
+                  yaxis_title="Probability Density")).show()
 
 
 def test_multivariate_gaussian():
@@ -55,12 +55,10 @@ def test_multivariate_gaussian():
             alt_mu = np.array([f1, 0, f3, 0])
             row.append(mv_g.log_likelihood(alt_mu, true_cov, Y))
         lh_values.append(row)
-    # for row in lh_values:
-    #     print("\n")
-    #     for item in row:
-    #         print(f"{item} ")
     go.Figure(go.Heatmap(x=rng, y=rng, z=lh_values), layout=go.Layout(
-        title="heatmap"
+        title="5) Log-likelihood As A Function Of f1, f3 Values",
+        xaxis_title="f1 value",
+        yaxis_title="f3 value"
     )).show()
 
     # Question 6 - Maximum likelihood
