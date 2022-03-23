@@ -156,8 +156,8 @@ class MultivariateGaussian:
         Then sets `self.fitted_` attribute to `True`
         """
         m = X.shape[0]  # num of samples
-        self.mu_ = X.sum(axis=1) / m
-        self.cov_ = np.cov(X)
+        self.mu_ = np.mean(X, axis=0)
+        self.cov_ = np.cov(X.T)
         self.fitted_ = True
         return self
 
@@ -207,5 +207,5 @@ class MultivariateGaussian:
         m, d = X.shape
         A = X - mu
         # according to the formula developed in theoretical q9
-        return (-m / 2) * (d * np.log(2 * np.pi) + np.log(det(cov))) \
-               - 0.5 * (np.sum(A.T @ inv(cov) @ A))
+        return\
+            (-m / 2) * (d * np.log(2 * np.pi) + slogdet(cov)) - 0.5 * (np.sum(A @ inv(cov) @ A.T))

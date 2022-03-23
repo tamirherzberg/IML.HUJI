@@ -1,9 +1,10 @@
 from IMLearn.learners import UnivariateGaussian, MultivariateGaussian
 import numpy as np
 import plotly.graph_objects as go
+import plotly.express as px
 import plotly.io as pio
 
-pio.renderers.default = "browser"  # didn't show it to me otherwise
+pio.renderers.default = "chrome"  # didn't show it to me otherwise
 pio.templates.default = "simple_white"
 
 
@@ -35,18 +36,34 @@ def test_univariate_gaussian():
 
 def test_multivariate_gaussian():
     # Question 4 - Draw samples and print fitted model
-    mu = np.array([0, 0, 4, 0])
-    cov = np.array([[1, 0.2, 0, 0.5],
-                    [0.2, 2, 0, 0],
-                    [0, 0, 1, 0],
-                    [0.5, 0, 0, 1]])
+    true_mu = np.array([0, 0, 4, 0])
+    true_cov = np.array([[1, 0.2, 0, 0.5],
+                         [0.2, 2, 0, 0],
+                         [0, 0, 1, 0],
+                         [0.5, 0, 0, 1]])
     mv_g = MultivariateGaussian()
-    Y = np.random.multivariate_normal(mu, cov, 1000)
+    Y = np.random.multivariate_normal(true_mu, true_cov, 1000)
     mv_g.fit(Y)
     print(f"{mv_g.mu_}\n{mv_g.cov_}")
 
     # Question 5 - Likelihood evaluation
-    # raise NotImplementedError()
+    lh_values = []
+    rng = np.linspace(-10, 10, 200)  # f1,f3 values range
+    for f1 in rng:
+        row = []
+        for f3 in rng:
+            alt_mu = np.array([f1, 0, f3, 0])
+            row.append(mv_g.log_likelihood(alt_mu, true_cov, Y))
+        lh_values.append(row)
+    go.Figure().add_trace(go.Heatmap(x=rng, y=rng, z=lh_values)).show()
+    # px.density_heatmap(x=rng, y=rng, z=lh_values,  title="Heatmap")
+    # , xaxis_title="f3", yaxis_title="f1"
+    # go.Figure([go.density_heatmap(x=rng, y=rng, z=lh_values)], layout=go.Layout(
+    #     title="Heatmap",
+    #     xaxis_title="f3",
+    #     yaxis_title="f1",
+    #     # zaxis_title="Loglikelihood Value"
+    # )).show()
 
     # Question 6 - Maximum likelihood
     # raise NotImplementedError()
@@ -54,6 +71,5 @@ def test_multivariate_gaussian():
 
 if __name__ == '__main__':
     np.random.seed(0)
-    # test_univariate_gaussian()
+    test_univariate_gaussian()
     test_multivariate_gaussian()
-
