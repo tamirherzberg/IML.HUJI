@@ -1,9 +1,7 @@
 from IMLearn.learners import UnivariateGaussian, MultivariateGaussian
 import numpy as np
 import plotly.graph_objects as go
-import plotly.express as px
 import plotly.io as pio
-import scipy.stats as sct
 
 pio.renderers.default = "chrome"  # didn't show it to me otherwise
 pio.templates.default = "simple_white"
@@ -75,6 +73,8 @@ if __name__ == '__main__':
     test_multivariate_gaussian()
 
     # q4 in quiz + tests
+
+    # import scipy.stats as sct
 
     # data = np.array([1, 5, 2, 3, 8, -4, -2, 5, 1, 10, -10, 4, 5, 2, 7, 1, 1, 3, 2, -1, -3, 1, -4, 1, 2, 1,
     #                  -4, -4, 1, 3, 2, 6, -6, 8, 3, -6, 4, 1, -2, 3, 1, 4, 1, 4, -2, 3, -1, 0, 3, 5, 0, -2])
