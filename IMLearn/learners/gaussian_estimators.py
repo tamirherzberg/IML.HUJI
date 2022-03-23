@@ -107,8 +107,10 @@ class UnivariateGaussian:
             log-likelihood calculated
         """
         m = X.shape[0]  # num of samples
-        return (1 / (2 * np.pi * sigma) ** (m / 2)) * \
-               np.exp(-np.sum((X - mu) ** 2) / (2 * sigma))
+        return (-m / 2) * np.log(2 * np.pi * sigma) - \
+               (np.sum((X - mu) ** 2)) / (2 * sigma)
+        # return (1 / (2 * np.pi * sigma) ** (m / 2)) * \
+        #        np.exp(-np.sum((X - mu) ** 2) / (2 * sigma))
 
 
 class MultivariateGaussian:
