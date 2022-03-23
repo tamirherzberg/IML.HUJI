@@ -55,15 +55,13 @@ def test_multivariate_gaussian():
             alt_mu = np.array([f1, 0, f3, 0])
             row.append(mv_g.log_likelihood(alt_mu, true_cov, Y))
         lh_values.append(row)
-    go.Figure().add_trace(go.Heatmap(x=rng, y=rng, z=lh_values)).show()
-    # px.density_heatmap(x=rng, y=rng, z=lh_values,  title="Heatmap")
-    # , xaxis_title="f3", yaxis_title="f1"
-    # go.Figure([go.density_heatmap(x=rng, y=rng, z=lh_values)], layout=go.Layout(
-    #     title="Heatmap",
-    #     xaxis_title="f3",
-    #     yaxis_title="f1",
-    #     # zaxis_title="Loglikelihood Value"
-    # )).show()
+    # for row in lh_values:
+    #     print("\n")
+    #     for item in row:
+    #         print(f"{item} ")
+    go.Figure(go.Heatmap(x=rng, y=rng, z=lh_values), layout=go.Layout(
+        title="heatmap"
+    )).show()
 
     # Question 6 - Maximum likelihood
     # raise NotImplementedError()
