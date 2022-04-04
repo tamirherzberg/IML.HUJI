@@ -82,6 +82,14 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
     # fig.write_image(output_path+".png")
 
 
+def pearson_cor(X, Y):
+    """
+    Calculates the Pearson Correlation for X,Y being one of the features and a
+    response vec, accordingly
+    """
+    return (np.cov(X, Y)) / (np.std(X) * np.std(Y))  #todo whats the problem?
+
+
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
