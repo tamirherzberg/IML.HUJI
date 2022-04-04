@@ -72,7 +72,14 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
     output_path: str (default ".")
         Path to folder in which plots are saved
     """
-    raise NotImplementedError()
+    for feat in X.columns:
+        go.Figure([go.Scatter(x=X[feat], y=y, mode='markers')],
+                  layout=go.Layout(
+                      title=f"Price as a function of {feat}",
+                      xaxis_title=feat,
+                      yaxis_title="price")).write_image(output_path + f"/price_{feat}_graph.png")
+
+    # fig.write_image(output_path+".png")
 
 
 if __name__ == '__main__':
