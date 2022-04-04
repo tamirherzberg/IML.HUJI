@@ -27,6 +27,7 @@ def load_data(filename: str):
     # load and delete missing values, duplicates
     full_data = pd.read_csv(filename).dropna().drop_duplicates()
     preprocess(full_data)
+    return full_data
 
 
 def preprocess(full_data):
