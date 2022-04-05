@@ -81,31 +81,33 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
         Path to folder in which plots are saved
     """
     for feat in X.columns:
+        cor = pearson_cor(X[feat], y)
         go.Figure([go.Scatter(x=X[feat], y=y, mode='markers')],
                   layout=go.Layout(
-                      title=f"Price as a function of {feat}",
+                      title=f"Price as a function of {feat}<br>"
+                            f"<sup>Pearson Correlation: {cor}</sup>",
                       xaxis_title=feat,
                       yaxis_title="price")).write_image(output_path + f"/price_{feat}_graph.png")
 
     # fig.write_image(output_path+".png")
 
 
-def pearson_cor(X, Y):
+def pearson_cor(X: pd.Series, Y: pd.Series):
     """
     Calculates the Pearson Correlation for X,Y being one of the features and a
     response vec, accordingly
     """
-    return (np.cov(X, Y)) / (np.std(X) * np.std(Y))  # todo whats the problem?
+    return Y.cov(X) / (np.std(X) * np.std(Y))
 
 
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
-    pd = load_data("../datasets/house_prices.csv")
+    df = load_data("../datasets/house_prices.csv")
 
     # Question 2 - Feature evaluation with respect to response
-    y = pd['price']
-    X = pd.drop(columns=['price'])
+    y = df['price']
+    X = df.drop(columns=['price'])
     feature_evaluation(X, y)
 
     # Question 3 - Split samples into training- and testing sets.
