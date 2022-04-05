@@ -21,8 +21,8 @@ def load_data(filename: str):
 
     Returns
     -------
-    Design matrix and response vector (prices) - either as a single
-    DataFrame or a Tuple[DataFrame, Series]
+    Design matrix and response vector (prices) as a single
+    DataFrame
     """
     # load and delete missing values, duplicates
     full_data = pd.read_csv(filename).dropna().drop_duplicates()
@@ -31,11 +31,11 @@ def load_data(filename: str):
 
 
 def preprocess(full_data):
-    # delete 33 rooms house, 0 bathrooms houses
     full_data.drop(columns=['id', 'zipcode', 'date'], inplace=True)
     full_data.drop(full_data.index[full_data['bedrooms'] == 33], inplace=True)
     full_data.drop(full_data.index[full_data['bathrooms'] <= 0], inplace=True)
     full_data.drop(full_data.index[full_data['sqft_living'] > 13000], inplace=True)  # removes a fishy entry
+    full_data.drop(full_data.index[full_data['price'] <= 0], inplace=True)
     # handle yr_renovated
     update_est_year_built(full_data)
     # handle categorical data?
@@ -49,10 +49,18 @@ def update_est_year_built(df: pd.DataFrame):
     The calculation was based on the maximum span between the two years
     in the dataset, which is 130.
     """
-    for i, val in enumerate(df['yr_built']):
-        if df['yr_renovated'][i] != 0:
-            df['yr_built'][i] -= ((df['yr_renovated'][i] - val) / 130) * 50
-    df.rename(columns={'yr_built': 'yr_est'})
+    # df.loc[df['yr_renovated'] != 0]
+    # for i, val in enumerate(df['yr_built']):
+    #     if df['yr_renovated'][i] != 0:
+    #         df['yr_built'][i] -= int(((df['yr_renovated'][i] - val) / 130) * 50)
+    for i, sample in df.iterrows():
+        if df.loc[i, 'yr_renovated'] != 0:
+            df.loc[i, 'yr_built'] = df.loc[i, 'yr_renovated'] \
+                                    - int(((df.loc[i, 'yr_renovated'] - df.loc[i, 'yr_built']) / 130) * 65)
+            # option B: just change year to renovated date
+            # df.loc[i, 'yr_built'] = df.loc[i, 'yr_renovated']
+    df.rename(columns={'yr_built': 'yr_est'}, inplace=True)
+    df.drop(columns='yr_renovated', inplace=True)
 
 
 def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
@@ -87,19 +95,21 @@ def pearson_cor(X, Y):
     Calculates the Pearson Correlation for X,Y being one of the features and a
     response vec, accordingly
     """
-    return (np.cov(X, Y)) / (np.std(X) * np.std(Y))  #todo whats the problem?
+    return (np.cov(X, Y)) / (np.std(X) * np.std(Y))  # todo whats the problem?
 
 
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
-    raise NotImplementedError()
+    pd = load_data("../datasets/house_prices.csv")
 
     # Question 2 - Feature evaluation with respect to response
-    raise NotImplementedError()
+    y = pd['price']
+    X = pd.drop(columns=['price'])
+    feature_evaluation(X, y)
 
     # Question 3 - Split samples into training- and testing sets.
-    raise NotImplementedError()
+    # raise NotImplementedError()
 
     # Question 4 - Fit model over increasing percentages of the overall training data
     # For every percentage p in 10%, 11%, ..., 100%, repeat the following 10 times:
@@ -108,4 +118,4 @@ if __name__ == '__main__':
     #   3) Test fitted model over test set
     #   4) Store average and variance of loss over test set
     # Then plot average loss as function of training size with error ribbon of size (mean-2*std, mean+2*std)
-    raise NotImplementedError()
+    # raise NotImplementedError()
