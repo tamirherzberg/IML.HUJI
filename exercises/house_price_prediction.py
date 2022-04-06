@@ -8,6 +8,10 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 
+CENTER_LAT = 47.62
+
+CENTER_LONG = -122.24
+
 pio.templates.default = "simple_white"
 pio.renderers.default = "chrome"
 
@@ -60,6 +64,16 @@ def update_est_year_built(df: pd.DataFrame):
     df.drop(columns='yr_renovated', inplace=True)
 
 
+def update_distance(df: pd.DataFrame):
+    pass
+
+
+def dist_from_center(long, lat):
+    a = np.array([long, lat])
+    b = np.array([CENTER_LONG, CENTER_LAT])
+    return np.linalg.norm(a - b)
+
+
 def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
     """
     Create scatter plot between each feature and the response.
@@ -84,7 +98,7 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
                       title=f"Price as a function of {feat}<br>"
                             f"<sup>Pearson Correlation: {cor}</sup>",
                       xaxis_title=feat,
-                      yaxis_title="price")).write_image(output_path + f"/price_{feat}_graph.png")
+                      yaxis_title="Price")).write_image(output_path + f"/price_{feat}_graph.png")
 
 
 def pearson_cor(X: pd.Series, Y: pd.Series):
@@ -148,5 +162,3 @@ if __name__ == '__main__':
                          xaxis_title="Percentage Of Training Set",
                          yaxis_title="MSE",
                          height=300)).show()
-
-
