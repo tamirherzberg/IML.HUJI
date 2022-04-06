@@ -33,7 +33,15 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
         Responses of test samples
 
     """
-    raise NotImplementedError()
+    X.insert(0, 'price', y)  # to make sure we don't mix up samples' response
+    shuffled = X.sample(frac=1)
+    comb_train, comb_test = np.split(shuffled, np.ceil(train_proportion * len(shuffled)),
+                                     np.floor((1 - train_proportion) * len(shuffled)))
+    train_y = comb_train['price']
+    test_y = comb_test['price']
+    train_X = comb_train.drop(columns='price')
+    test_X = comb_test.drop(columns='price')
+    return train_X, train_y, test_X, test_y
 
 
 def confusion_matrix(a: np.ndarray, b: np.ndarray) -> np.ndarray:
