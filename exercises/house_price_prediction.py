@@ -9,6 +9,7 @@ import plotly.express as px
 import plotly.io as pio
 
 pio.templates.default = "simple_white"
+pio.renderers.default = "chrome"
 
 
 def load_data(filename: str):
@@ -49,10 +50,6 @@ def update_est_year_built(df: pd.DataFrame):
     The calculation was based on the maximum span between the two years
     in the dataset, which is 130.
     """
-    # df.loc[df['yr_renovated'] != 0]
-    # for i, val in enumerate(df['yr_built']):
-    #     if df['yr_renovated'][i] != 0:
-    #         df['yr_built'][i] -= int(((df['yr_renovated'][i] - val) / 130) * 50)
     for i, sample in df.iterrows():
         if df.loc[i, 'yr_renovated'] != 0:
             df.loc[i, 'yr_built'] = df.loc[i, 'yr_renovated'] \
@@ -89,8 +86,6 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
                       xaxis_title=feat,
                       yaxis_title="price")).write_image(output_path + f"/price_{feat}_graph.png")
 
-    # fig.write_image(output_path+".png")
-
 
 def pearson_cor(X: pd.Series, Y: pd.Series):
     """
@@ -111,7 +106,7 @@ if __name__ == '__main__':
     feature_evaluation(X, y)
 
     # Question 3 - Split samples into training- and testing sets.
-    # raise NotImplementedError()
+    train_X, train_y, test_X, test_y = split_train_test(X, y)
 
     # Question 4 - Fit model over increasing percentages of the overall training data
     # For every percentage p in 10%, 11%, ..., 100%, repeat the following 10 times:
@@ -120,4 +115,38 @@ if __name__ == '__main__':
     #   3) Test fitted model over test set
     #   4) Store average and variance of loss over test set
     # Then plot average loss as function of training size with error ribbon of size (mean-2*std, mean+2*std)
-    # raise NotImplementedError()
+
+    p_values = np.arange(10, 101)
+    means = []
+    stds = []
+    train_X.insert(0, 'price', train_y)
+
+    for p in p_values:
+        p_loss = []
+        for i in range(10):
+            cur_sam = train_X.sample(frac=p / 100)
+            cur_X = cur_sam.drop(columns='price')
+            cur_y = cur_sam['price']
+            estimator = LinearRegression()
+            estimator.fit(cur_X, cur_y)
+            p_loss.append(estimator.loss(cur_X, cur_y))
+        p_loss = np.array(p_loss)
+        means.append(p_loss.mean())
+        stds.append(p_loss.std())
+
+    means = np.array(means)
+    stds = np.array(stds)
+
+    # creates graph
+    go.Figure(
+        [go.Scatter(x=p_values, y=means - 2 * stds, fill=None, mode="lines", line=dict(color="lightgrey"),
+                    showlegend=False),
+         go.Scatter(x=p_values, y=means + 2 * stds, fill='tonexty', mode="lines", line=dict(color="lightgrey"),
+                    showlegend=False),
+         go.Scatter(x=p_values, y=means, mode="markers+lines", marker=dict(color="black", size=1), showlegend=False)],
+        layout=go.Layout(title=r"MSE Loss As A Function Of Training Size",
+                         xaxis_title="Percentage Of Training Set",
+                         yaxis_title="MSE",
+                         height=300)).show()
+
+

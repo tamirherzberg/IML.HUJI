@@ -53,6 +53,7 @@ class LinearRegression(BaseEstimator):
             X = np.c_[np.ones(X.shape[0]), X]  # add ones column
         self.coefs_ = np.dot(pinv(X), y)
 
+
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
         Predict responses for given samples using fitted estimator
@@ -67,7 +68,10 @@ class LinearRegression(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        return np.dot(X, self.coefs_)
+        if self.include_intercept_:
+            return np.dot(X, self.coefs_[1:]) + self.coefs_[0]
+        else:
+            return np.dot(X, self.coefs_)
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -86,4 +90,4 @@ class LinearRegression(BaseEstimator):
         loss : float
             Performance under MSE loss function
         """
-        return mean_square_error(y, np.dot(X, self.coefs_))
+        return mean_square_error(y, self.predict(X))
