@@ -44,8 +44,15 @@ if __name__ == '__main__':
     px.scatter(isr_subset, x='DayOfYear', y='Temp', color='Year',
                title=f"Temperature in Israel As A Function Of Day Of The Year").show()
 
+    months_std = isr_subset.groupby('Month').agg({"Temp": np.std})
+    px.bar(months_std, y='Temp', barmode="group", title="Daily Temperature Standard Deviation As A Function Of Months",
+    labels={"Temp": "Standard Deviation"}).show()
+
+    # go.Figure([go.Histogram(x=isr_subset.groupby('Month'), y=months_std, showlegend=False)]).show()
+
+
     # Question 3 - Exploring differences between countries
-    raise NotImplementedError()
+    # raise NotImplementedError()
 
     # Question 4 - Fitting model for different values of `k`
     raise NotImplementedError()
