@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
 
+FILENAME = "../datasets/house_prices.csv"
+
 CENTER_LAT = 47.62
 
 CENTER_LONG = -122.24
@@ -112,7 +114,7 @@ def pearson_cor(X: pd.Series, Y: pd.Series):
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
-    df = load_data("../datasets/house_prices.csv")
+    df = load_data(FILENAME)
 
     # Question 2 - Feature evaluation with respect to response
     y = df['price']
