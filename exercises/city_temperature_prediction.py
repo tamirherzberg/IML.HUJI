@@ -46,13 +46,12 @@ if __name__ == '__main__':
 
     months_std = isr_subset.groupby('Month').agg({"Temp": np.std})
     px.bar(months_std, y='Temp', barmode="group", title="Daily Temperature Standard Deviation As A Function Of Months",
-    labels={"Temp": "Standard Deviation"}).show()
-
-    # go.Figure([go.Histogram(x=isr_subset.groupby('Month'), y=months_std, showlegend=False)]).show()
-
+           labels={"Temp": "Standard Deviation"}).show()
 
     # Question 3 - Exploring differences between countries
-    # raise NotImplementedError()
+    gcm = df.groupby(['Country', 'Month'], as_index=False)['Temp'].agg(
+        {"Temp": np.mean, 'Std': np.std})  # group by country, month
+    px.line(gcm, x="Month", y="Temp", color='Country', error_y="Std").show()
 
     # Question 4 - Fitting model for different values of `k`
     raise NotImplementedError()
