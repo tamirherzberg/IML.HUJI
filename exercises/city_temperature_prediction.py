@@ -67,10 +67,25 @@ if __name__ == '__main__':
         loss = k_estimator.loss(test_X.squeeze(), test_y)
         loss_vals.append(round(loss, 2))
 
-    k_vals = [i for i in range(1,11)]
-    k_dict = {'K':k_vals, 'Loss':loss_vals}
+    k_vals = [i for i in range(1, 11)]
+    k_dict = {'k': k_vals, 'Loss': loss_vals}
     k_df = pd.DataFrame(data=k_dict)
-    px.bar(k_df, y='Loss', x='K', title='Test Error Relation To Polynomial Degree (K)').show()
+    px.bar(k_df, y='Loss', x='k', title='Test Error Relation To Polynomial With Degree k').show()
 
     # Question 5 - Evaluating fitted model on different countries
-    raise NotImplementedError()
+    k = 5  # my choice, based on prev graph
+    isr_estimator = PolynomialFitting(k)
+    isr_estimator.fit(isr_subset['DayOfYear'], y)
+
+    countries = ['Jordan', 'South Africa', 'The Netherlands']
+    errors = []
+    for country in countries:
+        subset = df[df['Country'] == f"{country}"]
+        _y = subset['Temp']
+        _X = subset['DayOfYear']
+        errors.append(isr_estimator.loss(_X, _y))
+
+    err_dict = {'Country': countries, 'Model Error': errors}
+    err_df = pd.DataFrame(data=err_dict)
+    px.bar(err_df, y='Model Error', x='Country', title='Model Trained With Israeli Data Error In Respect To Different Countries').show()
+
