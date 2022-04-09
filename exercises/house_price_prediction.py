@@ -2,6 +2,7 @@ from IMLearn.utils import split_train_test
 from IMLearn.learners.regressors import LinearRegression
 
 from typing import NoReturn
+import math
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -45,7 +46,7 @@ def preprocess(full_data):
     full_data.drop(full_data.index[full_data['price'] <= 0], inplace=True)
     # handle yr_renovated
     update_est_year_built(full_data)
-    # handle categorical data?
+    update_distance(full_data)
 
 
 def update_est_year_built(df: pd.DataFrame):
@@ -67,14 +68,46 @@ def update_est_year_built(df: pd.DataFrame):
 
 
 def update_distance(df: pd.DataFrame):
-    pass
+    for i, sample in df.iterrows():
+        df.loc[i, 'lat'] = dist_from_center(df.loc[i, 'lat'], df.loc[i, 'long'])
+    df.rename(columns={'lat': 'dist_from_center'}, inplace=True)
+    df.drop(columns='long', inplace=True)
 
+def dist_from_center(lat2, lon2):
+    """
+    Function from gpxpy package, copied to avoid dependecy.
+    Calculate the Haversine distance.
 
-def dist_from_center(long, lat):
-    a = np.array([long, lat])
-    b = np.array([CENTER_LONG, CENTER_LAT])
-    return np.linalg.norm(a - b)
+    Parameters
+    ----------
+    origin : tuple of float
+        (lat, long)
+    destination : tuple of float
+        (lat, long)
 
+    Returns
+    -------
+    distance_in_km : float
+
+    Examples
+    --------
+    # >>> origin = (48.1372, 11.5756)  # Munich
+    # >>> destination = (52.5186, 13.4083)  # Berlin
+    # >>> round(distance(origin, destination), 1)
+    504.2
+    """
+    lat1, lon1 = CENTER_LAT, CENTER_LONG
+    radius = 6371  # earth radius in km
+
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = (math.sin(dlat / 2) * math.sin(dlat / 2) +
+         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+         math.sin(dlon / 2) * math.sin(dlon / 2))
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    d = radius * c
+
+    return -d
 
 def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
     """
