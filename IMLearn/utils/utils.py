@@ -33,14 +33,14 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
         Responses of test samples
 
     """
-    X.insert(0, 'price', y)  # to make sure we don't mix up samples' response
+    X.insert(0, 'response', y)  # to make sure we don't mix up samples' response
     shuffled = X.sample(frac=1)
     comb_train = shuffled.iloc[:int(np.ceil(train_proportion * len(shuffled)))]
     comb_test = shuffled.iloc[int(np.ceil(train_proportion * len(shuffled))):]
-    train_y = comb_train['price']
-    test_y = comb_test['price']
-    train_X = comb_train.drop(columns='price')
-    test_X = comb_test.drop(columns='price')
+    train_y = comb_train['response']
+    test_y = comb_test['response']
+    train_X = comb_train.drop(columns='response')
+    test_X = comb_test.drop(columns='response')
     return train_X, train_y, test_X, test_y
 
 

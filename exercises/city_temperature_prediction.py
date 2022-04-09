@@ -54,7 +54,23 @@ if __name__ == '__main__':
     px.line(gcm, x="Month", y="Temp", color='Country', error_y="Std").show()
 
     # Question 4 - Fitting model for different values of `k`
-    train_X, train_y, test_X, test_y = split_train_test(df.drop(col\), y)
+    y = isr_subset['Temp']
+    X = pd.Series.to_frame(isr_subset['DayOfYear'])
+
+    # X = isr_subset.drop(columns=['Temp', 'City', 'Date', 'Year', 'Month', 'Day', 'Country'])
+
+    train_X, train_y, test_X, test_y = split_train_test(X, y)
+    loss_vals = []
+    for k in range(1, 11):
+        k_estimator = PolynomialFitting(k)
+        k_estimator.fit(train_X.squeeze(), train_y)
+        loss = k_estimator.loss(test_X.squeeze(), test_y)
+        loss_vals.append(round(loss, 2))
+
+    k_vals = [i for i in range(1,11)]
+    k_dict = {'K':k_vals, 'Loss':loss_vals}
+    k_df = pd.DataFrame(data=k_dict)
+    px.bar(k_df, y='Loss', x='K', title='Test Error Relation To Polynomial Degree (K)').show()
 
     # Question 5 - Evaluating fitted model on different countries
     raise NotImplementedError()
