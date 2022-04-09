@@ -54,7 +54,7 @@ if __name__ == '__main__':
     px.line(gcm, x="Month", y="Temp", color='Country', error_y="Std").show()
 
     # Question 4 - Fitting model for different values of `k`
-    raise NotImplementedError()
+    train_X, train_y, test_X, test_y = split_train_test(df.drop(col\), y)
 
     # Question 5 - Evaluating fitted model on different countries
     raise NotImplementedError()
