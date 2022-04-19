@@ -42,9 +42,13 @@ def run_perceptron():
         X, y = load_dataset("../datasets/" + f)
 
         # Fit Perceptron and record loss in each fit iteration
-        perc = Perceptron(callback=)
         losses = []
 
+        def calc_loss(arg_perc, c_x, c_y):
+            losses.append(arg_perc.loss(X, y))
+
+        perc = Perceptron(callback=calc_loss)
+        perc.fit(X, y)
 
         # Plot figure of loss as function of fitting iteration
         raise NotImplementedError()
