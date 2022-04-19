@@ -103,7 +103,7 @@ class Perceptron(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        return self.coefs_ @ X.T
+        return np.sign(self.coefs_ @ X.T)
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
