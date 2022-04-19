@@ -80,7 +80,7 @@ class Perceptron(BaseEstimator):
         while iter_count < self.max_iter_ and changes_made:
             changes_made = False
             for i in range(samples_num):
-                if (y[i] * (self.coefs_ @ X[i])) <= 0:
+                if (y[i] * (self.coefs_ @ X[i].T)) <= 0:
                     self.coefs_ += y[i] * X[i]
                     changes_made = True
                     self.callback_(self, X[i], y[i])
@@ -103,7 +103,7 @@ class Perceptron(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        return self.coefs_ @ X.T
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -123,4 +123,4 @@ class Perceptron(BaseEstimator):
             Performance under missclassification loss function
         """
         from ...metrics import misclassification_error
-        raise NotImplementedError()
+        return misclassification_error(y, self.predict(X))
