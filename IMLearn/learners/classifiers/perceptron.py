@@ -73,7 +73,21 @@ class Perceptron(BaseEstimator):
         -----
         Fits model with or without an intercept depending on value of `self.fit_intercept_`
         """
-        raise NotImplementedError()
+        samples_num = X.shape[0]
+        self.coefs_ = np.zeros(X.shape[1])
+        iter_count = 0
+        changes_made = True
+        while iter_count < self.max_iter_ and changes_made:
+            changes_made = False
+            for i in range(samples_num):
+                if (y[i] * (self.coefs_ @ X[i])) <= 0:
+                    self.coefs_ += y[i] * X[i]
+                    changes_made = True
+                    self.callback_(self, X[i], y[i])
+                    if not self.fitted_:
+                        self.fitted_ = True
+                    break
+            iter_count += 1
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
