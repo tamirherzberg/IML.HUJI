@@ -87,9 +87,9 @@ class Perceptron(BaseEstimator):
                 if (y[i] * (self.coefs_ @ X[i].T)) <= 0:
                     self.coefs_ += y[i] * X[i]
                     changes_made = True
-                    self.callback_(self, X[i], y[i])
                     if not self.fitted_:
                         self.fitted_ = True
+                    self.callback_(self, X[i], y[i])
                     break
             iter_count += 1
 
@@ -109,7 +109,7 @@ class Perceptron(BaseEstimator):
         """
 
         if self.include_intercept_:
-            return np.sign(np.dot(X, self.coefs_[1:] + self.coefs_[0]))
+            return np.sign(np.dot(X, self.coefs_[1:]) + self.coefs_[0])
         else:
             return np.sign(np.dot(X, self.coefs_))
 

@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from math import atan2, pi
 
+pio.renderers.default = "chrome"
 
 def load_dataset(filename: str) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -51,7 +52,7 @@ def run_perceptron():
         perc.fit(X, y)
 
         # Plot figure of loss as function of fitting iteration
-        raise NotImplementedError()
+        go.Figure(data=go.Scatter(x=np.arange(start=1, stop=len(losses)+1), y=np.array(losses))).show()
 
 
 def get_ellipse(mu: np.ndarray, cov: np.ndarray):
