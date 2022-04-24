@@ -23,14 +23,15 @@ class LDA(BaseEstimator):
         The inverse of the estimated features covariance. To be set in `LDA.fit`
 
     self.pi_: np.ndarray of shape (n_classes)
-        The estimated class probabilities. To be set in `GaussianNaiveBayes.fit`
+        The estimated class probabilities. To be set in `LDA.fit`
     """
+
     def __init__(self):
         """
         Instantiate an LDA classifier
         """
         super().__init__()
-        self.classes_, self.mu_, self.cov_, self._cov_inv, self.pi_ = None, None, None, None, None
+        self.classes_, self.mu_, self.cov_, self._cov_inv, self.pi_, self._m = None, None, None, None, None, None
 
     def _fit(self, X: np.ndarray, y: np.ndarray) -> NoReturn:
         """
@@ -46,7 +47,36 @@ class LDA(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        raise NotImplementedError()
+        self._m = X.shape[0]
+        self.classes_ = np.unique(y)
+        self._set_mu_pi(X, y)
+        self._set_covs(X, y)
+
+    def _set_mu_pi(self, X: np.ndarray, y: np.ndarray):
+        """
+        calculates and sets the MLE Mean and Pi. Assumes self.classes is already set
+        """
+        mu = []
+        pi_list = []
+        for k in self.classes_:
+            x_list = np.array([X[i] for i in range(self._m) if y[i] == k])
+            n_k = np.sum(x_list)
+            pi_list.append(n_k / self._m)
+            mu.append(x_list / n_k)
+        self.mu_ = np.array(mu)
+        self.pi = np.array(pi_list)
+
+    def _set_covs(self, X: np.ndarray, y: np.ndarray):
+        """
+        calculates and sets the MLE cov and cov inv matrices
+        """
+        sum_list = []
+        for i in range(self._m):
+            k = np.where(self.classes_ == y[i])
+            v = X[i] - self.mu_[k]
+            sum_list.append(np.outer(v, v))
+        self.cov_ = np.sum(sum_list) / (self._m - self.classes_.shape[0])
+        self._cov_inv = inv(self.cov_)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
