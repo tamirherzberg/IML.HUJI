@@ -93,7 +93,7 @@ class LDA(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+
 
     def likelihood(self, X: np.ndarray) -> np.ndarray:
         """
@@ -114,7 +114,7 @@ class LDA(BaseEstimator):
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
         lh_list = []
         for k in range(len(self.classes_)):
-            lh_list.append(np.log(self.pi[k]) + X.T @ self.cov_inv @ self.mu_[k])
+            lh_list.append(np.log(self.pi[k]) + X.T @ self._cov_inv @ self.mu_[k])
         lh_list = np.array(lh_list)
         return lh_list.T
 
