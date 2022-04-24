@@ -51,6 +51,7 @@ class LDA(BaseEstimator):
         self.classes_ = np.unique(y)
         self._set_mu_pi(X, y)
         self._set_covs(X, y)
+        self.fitted_ = True
 
     def _set_mu_pi(self, X: np.ndarray, y: np.ndarray):
         """
@@ -111,8 +112,11 @@ class LDA(BaseEstimator):
         """
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
-
-        raise NotImplementedError()
+        lh_list = []
+        for k in range(len(self.classes_)):
+            lh_list.append(np.log(self.pi[k]) + X.T @ self.cov_inv @ self.mu_[k])
+        lh_list = np.array(lh_list)
+        return lh_list.T
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -132,4 +136,4 @@ class LDA(BaseEstimator):
             Performance under missclassification loss function
         """
         from ...metrics import misclassification_error
-        raise NotImplementedError()
+        return misclassification_error(y, self._predict(X))
