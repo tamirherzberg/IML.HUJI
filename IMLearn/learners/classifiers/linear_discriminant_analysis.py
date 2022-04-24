@@ -60,8 +60,8 @@ class LDA(BaseEstimator):
         mu = []
         pi_list = []
         for k in self.classes_:
-            x_list = np.array([X[i] for i in range(self._m) if y[i] == k])
-            n_k = np.sum(x_list)
+            x_list = X[y == k]
+            n_k = len(x_list)
             pi_list.append(n_k / self._m)
             mu.append(x_list / n_k)
         self.mu_ = np.array(mu)

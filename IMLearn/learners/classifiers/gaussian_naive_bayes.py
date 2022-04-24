@@ -39,7 +39,29 @@ class GaussianNaiveBayes(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        raise NotImplementedError()
+
+
+        vars_list = []
+        for k in range(len(self.classes_)):
+            cur_x = X[y == self.classes_[k]]
+            sum_list = []
+            for i in range(len(cur_x)):
+                sum_list.append(np.square(cur_x[i] - self.mu_[k]))
+            sum_list = np.array(sum_list)
+            vars_list.append(np.sum(sum_list) / len(cur_x))
+        self.vars_ = np.array(vars_list)
+
+    def _set_mu(self, X: np.ndarray, y: np.ndarray):
+        """
+        calculates and sets the MLE Mean and Pi. Assumes self.classes is already set
+        """
+        _m = X.shape[0]
+        mu = []
+        for k in self.classes_:
+            x_list = X[y == k]
+            n_k = len(x_list)
+            mu.append(x_list / n_k)
+        self.mu_ = np.array(mu)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
