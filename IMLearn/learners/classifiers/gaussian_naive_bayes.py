@@ -56,16 +56,7 @@ class GaussianNaiveBayes(BaseEstimator):
         """
         calculates and sets the MLE Mean and Pi. Assumes self.classes is already set
         """
-        m = X.shape[0]
-        mu = []
-        pi_list = []
-        for k in self.classes_:
-            x_list = X[y == k]
-            n_k = len(x_list)
-            pi_list.append(n_k / m)
-            mu.append(x_list / n_k)
-        self.mu_ = np.array(mu)
-        self.pi = np.array(pi_list)
+
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """

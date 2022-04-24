@@ -63,7 +63,7 @@ class LDA(BaseEstimator):
             x_list = X[y == k]
             n_k = len(x_list)
             pi_list.append(n_k / self._m)
-            mu.append(x_list / n_k)
+            mu.append(np.sum(x_list, axis=0) / n_k)
         self.mu_ = np.array(mu)
         self.pi = np.array(pi_list)
 
@@ -76,7 +76,7 @@ class LDA(BaseEstimator):
             k = np.where(self.classes_ == y[i])
             v = X[i] - self.mu_[k]
             sum_list.append(np.outer(v, v))
-        self.cov_ = np.sum(sum_list) / (self._m - self.classes_.shape[0])
+        self.cov_ = np.sum(sum_list, axis=0) / (self._m - self.classes_.shape[0])
         self._cov_inv = inv(self.cov_)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
