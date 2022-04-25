@@ -7,7 +7,7 @@ from math import atan2, pi
 
 pio.renderers.default = "chrome"
 
-SYMBOLS = np.array(['x', 'square', 'circle'])
+SYMBOLS = np.array(['square', 'circle', 'hexagram'])
 
 
 def load_dataset(filename: str) -> Tuple[np.ndarray, np.ndarray]:
@@ -98,6 +98,8 @@ def compare_gaussian_classifiers():
         gn_classifier = GaussianNaiveBayes()
         gn_classifier.fit(X, y)
 
+        models = [gn_classifier, lda_classifier]
+
         # Plot a figure with two subplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
         lda_prediction = lda_classifier.predict(X)
@@ -122,12 +124,16 @@ def compare_gaussian_classifiers():
                 showlegend=False,
                 mode='markers', marker=dict(color=p, symbol=SYMBOLS[y], line=dict(width=0.75, color='black'))))
 
+            # Add `X` dots specifying fitted Gaussians' means
+            mu = models[i].mu_
+            plots.add_trace(row=1, col=i + 1,
+                            trace=go.Scatter(x=mu[:, 0], y=mu[:, 1],
+                            showlegend=False,
+                            mode='markers', marker=dict(color='black', symbol='x', line=dict(width=0.5, color='black'))))
         plots.show()
-        # Add `X` dots specifying fitted Gaussians' means
-        # raise NotImplementedError()
 
         # Add ellipses depicting the covariances of the fitted Gaussians
-        # raise NotImplementedError()
+
 
 
 if __name__ == '__main__':
