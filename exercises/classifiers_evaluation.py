@@ -102,16 +102,18 @@ def compare_gaussian_classifiers():
 
         # Create subplots
         from IMLearn.metrics import accuracy
-
+        from sklearn.metrics import accuracy_score
+        print("my acc: " + str(accuracy(y, lda_prediction)))
+        print("sklearn: " + str(accuracy_score(y, lda_prediction)))
 
         # Add traces for data-points setting symbols and colors
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
         # Add `X` dots specifying fitted Gaussians' means
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
         # Add ellipses depicting the covariances of the fitted Gaussians
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
 
 if __name__ == '__main__':

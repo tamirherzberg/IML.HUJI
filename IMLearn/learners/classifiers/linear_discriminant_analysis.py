@@ -65,7 +65,7 @@ class LDA(BaseEstimator):
             pi_list.append(n_k / self._m)
             mu.append(np.sum(x_list, axis=0) / n_k)
         self.mu_ = np.array(mu)
-        self.pi = np.array(pi_list)
+        self.pi_ = np.array(pi_list)
 
     def _set_covs(self, X: np.ndarray, y: np.ndarray):
         """
@@ -116,7 +116,7 @@ class LDA(BaseEstimator):
         lh_list = []
         for k in range(len(self.classes_)):
             a_k = self._cov_inv @ self.mu_[k]
-            b_k = np.log(self.pi[k]) - 0.5 * self.mu_[k] @ self._cov_inv @ self.mu_[k]
+            b_k = np.log(self.pi_[k]) - 0.5 * self.mu_[k] @ self._cov_inv @ self.mu_[k]
             lh_list.append(a_k @ X.T + b_k)
         lh_list = np.array(lh_list)
         return lh_list.T

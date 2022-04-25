@@ -73,7 +73,7 @@ class GaussianNaiveBayes(BaseEstimator):
             pi_list.append(n_k / X.shape[0])
             mu.append(np.sum(x_list, axis=0) / n_k)
         self.mu_ = np.array(mu)
-        self.pi = np.array(pi_list)
+        self.pi_ = np.array(pi_list)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -110,7 +110,7 @@ class GaussianNaiveBayes(BaseEstimator):
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
         lh_list = []
-        for k_ind in range(self.classes_):
+        for k_ind in range(len(self.classes_)):
             sum_list = []
             for j in range(X.shape[1]):
                 sum_list.append(np.log(np.sqrt(2 * np.pi * self.vars_[k_ind][j]))
