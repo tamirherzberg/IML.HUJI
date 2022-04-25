@@ -128,12 +128,16 @@ def compare_gaussian_classifiers():
             mu = models[i].mu_
             plots.add_trace(row=1, col=i + 1,
                             trace=go.Scatter(x=mu[:, 0], y=mu[:, 1],
-                            showlegend=False,
-                            mode='markers', marker=dict(color='black', symbol='x', line=dict(width=0.5, color='black'))))
-        plots.show()
+                                             showlegend=False,
+                                             mode='markers', marker=dict(color='black', symbol='x',
+                                                                         line=dict(width=0.5, color='black'))))
 
         # Add ellipses depicting the covariances of the fitted Gaussians
-
+        for j in range(3):
+            plots.add_trace(row=1, col=1,
+                            trace=get_ellipse(gn_classifier.mu_[j], gn_classifier.vars_),
+                            showlegend=False)
+        plots.show()
 
 
 if __name__ == '__main__':
