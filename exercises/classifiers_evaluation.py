@@ -135,7 +135,7 @@ def compare_gaussian_classifiers():
         # Add ellipses depicting the covariances of the fitted Gaussians
         for j in range(3):
             plots.add_trace(row=1, col=1,
-                            trace=get_ellipse(gn_classifier.mu_[j], gn_classifier.vars_),
+                            trace=get_ellipse(gn_classifier.mu_[j], np.diag(gn_classifier.vars_)),  # todo
                             showlegend=False)
         plots.show()
 
