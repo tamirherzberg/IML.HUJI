@@ -55,7 +55,10 @@ def run_perceptron():
         perc.fit(X, y)
 
         # Plot figure of loss as function of fitting iteration
-        go.Figure(data=go.Scatter(x=np.arange(start=1, stop=len(losses) + 1), y=np.array(losses))).show()
+        go.Figure(data=go.Scatter(x=np.arange(start=1, stop=len(losses) + 1), y=np.array(losses)),
+                  layout=dict(title=n + " Data - Loss Value As A Function Of Iterations Amount",
+                              xaxis_title="Number of iterations",
+                              yaxis_title="Loss")).show()
 
 
 def get_ellipse(mu: np.ndarray, cov: np.ndarray):
@@ -134,7 +137,6 @@ def compare_gaussian_classifiers():
 
         # Add ellipses depicting the covariances of the fitted Gaussians
         for j in range(3):
-
             plots.add_trace(row=1, col=1,
                             trace=get_ellipse(gn_classifier.mu_[j], np.diag(gn_classifier.vars_[j])))
 
@@ -143,7 +145,9 @@ def compare_gaussian_classifiers():
 
         plots.show()
 
+
 if __name__ == '__main__':
     np.random.seed(0)
     run_perceptron()
     compare_gaussian_classifiers()
+
