@@ -92,6 +92,9 @@ def compare_gaussian_classifiers():
         lda_classifier = LDA()
         lda_classifier.fit(X, y)
 
+        gn_classifier = GaussianNaiveBayes()
+        gn_classifier.fit(X, y)
+
         # Plot a figure with two suplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
         # Create subplots
