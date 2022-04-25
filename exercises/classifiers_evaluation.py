@@ -151,3 +151,21 @@ if __name__ == '__main__':
     run_perceptron()
     compare_gaussian_classifiers()
 
+    # quiz q1:
+
+    # S = {(0, 0), (1, 0), (2, 1), (3, 1), (4, 1), (5, 1), (6, 2), (7, 2)}
+    X1 = np.array([0, 1, 2, 3, 4, 5, 6, 7])
+    y1 = np.array([0, 0, 1, 1, 1, 1, 2, 2])
+    gn1 = GaussianNaiveBayes()
+    gn1.fit(X1, y1)
+    print("pi = " + str(gn1.pi_[0]))
+    print("mu = " + str(gn1.mu_[1]))
+
+    # quiz q2:
+    # S = {([1, 1], 0), ([1, 2], 0), ([2, 3], 1), ([2, 4], 1), ([3, 3], 1), ([3, 4], 1)}
+    X2 = np.array([[1, 1], [1, 2], [2, 3], [2, 4], [3, 3], [3, 4]])
+    y2 = np.array([0, 0, 1, 1, 1, 1])
+    gn2 = GaussianNaiveBayes()
+    gn2.fit(X2, y2)
+    print("sigma^2[1,0]= " + str(gn2.vars_[0][1]))  # supposed to be ?
+    print("sigma^2[1,1]" + str(gn2.mu_[1][1]))  # supposed to be 0.33?

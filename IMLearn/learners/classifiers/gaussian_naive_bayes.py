@@ -58,7 +58,7 @@ class GaussianNaiveBayes(BaseEstimator):
             for i in range(len(cur_x)):
                 sum_list.append(np.square(cur_x[i] - self.mu_[k]))
             sum_list = np.array(sum_list)
-            vars_list.append(np.sum(sum_list, axis=0) / len(cur_x))
+            vars_list.append(np.sum(sum_list, axis=0) / (len(cur_x) - 1))
         self.vars_ = np.array(vars_list)
 
     def _set_mu_pi(self, X: np.ndarray, y: np.ndarray):
