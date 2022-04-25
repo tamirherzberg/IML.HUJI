@@ -88,7 +88,8 @@ class GaussianNaiveBayes(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        k_ind = np.argmax(self.likelihood(X), axis=1)
+        return self.classes_[k_ind]
 
     def likelihood(self, X: np.ndarray) -> np.ndarray:
         """
