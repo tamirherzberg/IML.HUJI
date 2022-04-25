@@ -42,8 +42,14 @@ class GaussianNaiveBayes(BaseEstimator):
             Responses of input data to fit to
         """
 
+        self.classes_ = np.unique(y)
         self._set_mu_pi(X, y)
+        self._set_vars(X, y)
 
+    def _set_vars(self, X, y):
+        """
+        calculates and sets the MLE variance. Assumes self.classe, self.mum, self.pi are already set
+        """
         vars_list = []
         for k in range(len(self.classes_)):
             cur_x = X[y == self.classes_[k]]
@@ -58,6 +64,15 @@ class GaussianNaiveBayes(BaseEstimator):
         """
         calculates and sets the MLE Mean and Pi. Assumes self.classes is already set
         """
+        mu = []
+        pi_list = []
+        for k in self.classes_:
+            x_list = X[y == k]
+            n_k = len(x_list)
+            pi_list.append(n_k / X.shape[0])
+            mu.append(np.sum(x_list, axis=0) / n_k)
+        self.mu_ = np.array(mu)
+        self.pi = np.array(pi_list)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
