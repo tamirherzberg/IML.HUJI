@@ -2,10 +2,12 @@ from typing import NoReturn
 from ...base import BaseEstimator
 import numpy as np
 
+
 class GaussianNaiveBayes(BaseEstimator):
     """
     Gaussian Naive-Bayes classifier
     """
+
     def __init__(self):
         """
         Instantiate a Gaussian Naive Bayes classifier
@@ -57,7 +59,6 @@ class GaussianNaiveBayes(BaseEstimator):
         calculates and sets the MLE Mean and Pi. Assumes self.classes is already set
         """
 
-
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
         Predict responses for given samples using fitted estimator
@@ -91,8 +92,16 @@ class GaussianNaiveBayes(BaseEstimator):
         """
         if not self.fitted_:
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
-
-        raise NotImplementedError()
+        lh_list = []
+        for k_ind in range(self.classes_):
+            sum_list = []
+            for j in range(X.shape[1]):
+                sum_list.append(np.log(np.sqrt(2 * np.pi * self.vars_[k_ind][j]))
+                                + 0.5 * (((X[:, j] - self.mu_[k_ind][j]) / self.vars_[k_ind][j]) ** 2))
+            sum_list = np.array(sum_list)
+            lh_list.append(np.log(self.pi_[k_ind]) - np.sum(sum_list, axis=0))
+        lh_list = np.array(lh_list)
+        return lh_list.T
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
