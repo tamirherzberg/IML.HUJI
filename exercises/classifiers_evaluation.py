@@ -7,6 +7,9 @@ from math import atan2, pi
 
 pio.renderers.default = "chrome"
 
+SYMBOLS = np.array(['x', 'square', 'circle'])
+
+
 def load_dataset(filename: str) -> Tuple[np.ndarray, np.ndarray]:
     """
     Load dataset for comparing the Gaussian Naive Bayes and LDA classifiers. File is assumed to be an
@@ -52,7 +55,7 @@ def run_perceptron():
         perc.fit(X, y)
 
         # Plot figure of loss as function of fitting iteration
-        go.Figure(data=go.Scatter(x=np.arange(start=1, stop=len(losses)+1), y=np.array(losses))).show()
+        go.Figure(data=go.Scatter(x=np.arange(start=1, stop=len(losses) + 1), y=np.array(losses))).show()
 
 
 def get_ellipse(mu: np.ndarray, cov: np.ndarray):
@@ -99,16 +102,27 @@ def compare_gaussian_classifiers():
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
         lda_prediction = lda_classifier.predict(X)
         gn_prediction = gn_classifier.predict(X)
+        predicitons = [gn_prediction, lda_prediction]
 
         # Create subplots
         from IMLearn.metrics import accuracy
-        from sklearn.metrics import accuracy_score
-        print("my acc: " + str(accuracy(y, lda_prediction)))
-        print("sklearn: " + str(accuracy_score(y, lda_prediction)))
+
+        lda_acc = accuracy(y, lda_prediction)
+        gn_acc = accuracy(y, gn_prediction)
+
+        plots = make_subplots(rows=1, cols=2,
+                              subplot_titles=[f"Gaussian Naive Bayes | Accuracy: {gn_acc}",
+                                              f"LDA algorithm | Accuracy: {lda_acc}"])
+        plots.update_layout(title=f"Dataset: {f}")
 
         # Add traces for data-points setting symbols and colors
-        # raise NotImplementedError()
+        for i, p in enumerate(predicitons):
+            plots.add_trace(row=1, col=i + 1, trace=go.Scatter(
+                x=X[:, 0], y=X[:, 1],
+                showlegend=False,
+                mode='markers', marker=dict(color=p, symbol=SYMBOLS[y], line=dict(width=0.75, color='black'))))
 
+        plots.show()
         # Add `X` dots specifying fitted Gaussians' means
         # raise NotImplementedError()
 
