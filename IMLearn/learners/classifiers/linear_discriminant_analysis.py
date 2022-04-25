@@ -115,7 +115,9 @@ class LDA(BaseEstimator):
             raise ValueError("Estimator must first be fitted before calling `likelihood` function")
         lh_list = []
         for k in range(len(self.classes_)):
-            lh_list.append(np.log(self.pi[k]) + X.T @ self._cov_inv @ self.mu_[k])
+            a_k = self._cov_inv @ self.mu_[k]
+            b_k = np.log(self.pi[k]) - 0.5 * self.mu_[k] @ self._cov_inv @ self.mu_[k]
+            lh_list.append(a_k @ X.T + b_k)
         lh_list = np.array(lh_list)
         return lh_list.T
 

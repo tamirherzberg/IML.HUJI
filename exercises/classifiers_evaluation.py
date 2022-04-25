@@ -95,11 +95,14 @@ def compare_gaussian_classifiers():
         gn_classifier = GaussianNaiveBayes()
         gn_classifier.fit(X, y)
 
-        # Plot a figure with two suplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
+        # Plot a figure with two subplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
+        lda_prediction = lda_classifier.predict(X)
+        gn_prediction = gn_classifier.predict(X)
+
         # Create subplots
         from IMLearn.metrics import accuracy
-        raise NotImplementedError()
+
 
         # Add traces for data-points setting symbols and colors
         raise NotImplementedError()
