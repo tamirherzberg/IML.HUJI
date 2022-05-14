@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import Tuple, NoReturn
 from ...base import BaseEstimator
-from ...metrics.loss_functions import misclassification_error
 import numpy as np
 from itertools import product
 
@@ -142,10 +141,10 @@ class DecisionStump(BaseEstimator):
     def _weighted_loss(self, labels, preds):
         prod = np.dot(labels, preds)
         ind = np.where(prod < 0)
-        sum = 0
+        loss_sum = 0
         for i in ind:
-            sum += abs(prod[i])
-        return sum
+            loss_sum += abs(prod[i])
+        return loss_sum
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """

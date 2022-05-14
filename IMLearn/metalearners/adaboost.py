@@ -48,7 +48,18 @@ class AdaBoost(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        raise NotImplementedError()
+        self.D_ = np.ones(X.shape[0]) / X.shape[0]
+        self.models_ = []
+        for t in range(self.iterations_):
+            wl = self.wl_()
+            wl.fit(X, self.D_ * y)
+            self.models_.append(wl)
+            eps = wl.loss(X, y)
+            w = 0.5 * np.log((1 / eps) - 1)
+            self.weights_.append(w)
+            self.D_ = self.D_ * np.exp(y * (-w) * wl.predict(X))
+            self.D_ /= np.sum(self.D_)  # normalized
+
 
     def _predict(self, X):
         """
@@ -64,7 +75,7 @@ class AdaBoost(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        return self.partial_predict(X, len(self.models_))
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -83,7 +94,7 @@ class AdaBoost(BaseEstimator):
         loss : float
             Performance under missclassification loss function
         """
-        raise NotImplementedError()
+        return self.partial_loss(X, y, len(self.models_))
 
     def partial_predict(self, X: np.ndarray, T: int) -> np.ndarray:
         """
@@ -102,7 +113,10 @@ class AdaBoost(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        sum = np.zeros(X.shape[0])
+        for t in range(T):
+            sum += self.weights_[t] * self.models_[t].predict(X)
+        return sum
 
     def partial_loss(self, X: np.ndarray, y: np.ndarray, T: int) -> float:
         """
@@ -124,4 +138,7 @@ class AdaBoost(BaseEstimator):
         loss : float
             Performance under missclassification loss function
         """
-        raise NotImplementedError()
+        loss = 0
+        for t in range(T):
+            loss += self.models_[t].loss(X, y)
+        return loss
