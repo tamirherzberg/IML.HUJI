@@ -50,11 +50,12 @@ class AdaBoost(BaseEstimator):
         """
         self.D_ = np.ones(X.shape[0]) / X.shape[0]
         self.models_ = []
+        self.weights_ = []
         for t in range(self.iterations_):
             wl = self.wl_()
             wl.fit(X, self.D_ * y)
             self.models_.append(wl)
-            eps = wl.loss(X, y)
+            eps = wl.loss(X, y * self.D_)
             w = 0.5 * np.log((1 / eps) - 1)
             self.weights_.append(w)
             self.D_ = self.D_ * np.exp(y * (-w) * wl.predict(X))

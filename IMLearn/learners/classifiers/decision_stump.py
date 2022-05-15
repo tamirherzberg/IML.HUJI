@@ -42,17 +42,18 @@ class DecisionStump(BaseEstimator):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        lowest_err = 1
+        lowest_err = np.inf
         best_sign = 0
         best_feat = 0
         best_thr = 0
         for j in range(X.shape[1]):
             for sign in SIGNS:
                 thr, err = self._find_threshold(X[:, j], y, sign)
-                if err <= lowest_err:  # err is always <= 1, so it'll update
+                if err < lowest_err:
                     best_feat = j
                     best_thr = thr
                     best_sign = sign
+                    lowest_err = err
         self.j_ = best_feat
         self.threshold_ = best_thr
         self.sign_ = best_sign
@@ -123,26 +124,32 @@ class DecisionStump(BaseEstimator):
         combined.sort(axis=0)
         values = combined[0]
         labels = combined[1]
+        values = np.concatenate([[-np.inf], (values[1:] + values[:-1]) / 2, [np.inf]])
+        minimal_error_labels = labels[np.sign(labels) == sign]
+        inital_error = np.sum(np.abs(minimal_error_labels)) # todo make sure
+        possible_errors = np.append(inital_error, inital_error - np.cumsum(labels * sign))
+        thr_idx = np.argmin(possible_errors)
+        return values[thr_idx], possible_errors[thr_idx]
 
-        total_weights = np.sum(abs(labels))
-        cur_loss = self._weighted_loss(labels, np.ones(labels.shape[0])) * sign
-        best_loss = cur_loss
-        best_ind = 0
-        for i in range(1, values.shape[0]):
-            if np.sign(values[i - 1]) == sign:
-                cur_loss += abs(labels[i - 1])
-            else:
-                cur_loss -= abs(labels[i - 1])
-                if cur_loss < best_loss:
-                    best_ind = i
-                    best_loss = cur_loss
-        return values[best_ind], best_loss / total_weights
+        # total_weights = np.sum(abs(labels))
+        # cur_loss = self._weighted_loss(labels, np.ones(labels.shape[0])) * sign
+        # best_loss = cur_loss
+        # best_ind = 0
+        # for i in range(1, values.shape[0]):
+        #     if np.sign(values[i - 1]) == -sign:
+        #         cur_loss -= abs(labels[i - 1])
+        #         if cur_loss < best_loss:
+        #             best_ind = i
+        #             best_loss = cur_loss
+        #     else:
+        #         cur_loss += abs(labels[i - 1])
+        # return values[best_ind], best_loss / total_weights
 
     def _weighted_loss(self, labels, preds):
-        prod = np.dot(labels, preds)
+        prod = labels * preds
         ind = np.where(prod < 0)
         loss_sum = 0
-        for i in ind:
+        for i in ind[0]:
             loss_sum += abs(prod[i])
         return loss_sum
 
