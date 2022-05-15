@@ -6,6 +6,8 @@ from utils import *
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+pio.templates.default = "simple_white"
+pio.renderers.default = "chrome"
 
 def generate_data(n: int, noise_ratio: float) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -46,14 +48,21 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     ab.fit(train_X, train_y)
     noiseless_train_loss = []
     noiseless_test_loss = []
-    learners_num = np.arange(n_learners)
+    learners_num = np.arange(1, n_learners + 1)
     for t in learners_num:
         noiseless_train_loss.append(ab.partial_loss(train_X, train_y, t))
         noiseless_test_loss.append(ab.partial_loss(test_X, test_y, t))
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=learners_num, y=noiseless_train_loss,
+                             mode="lines", name="Train"))
+    fig.add_trace(go.Scatter(x=learners_num, y=noiseless_test_loss,
+                             mode="lines", name="Test"))
+    fig.show()
 
     # Question 2: Plotting decision surfaces
     T = [5, 50, 100, 250]
     lims = np.array([np.r_[train_X, test_X].min(axis=0), np.r_[train_X, test_X].max(axis=0)]).T + np.array([-.1, .1])
+
     raise NotImplementedError()
 
     # Question 3: Decision surface of best performing ensemble

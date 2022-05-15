@@ -119,18 +119,17 @@ class DecisionStump(BaseEstimator):
         which equal to or above the threshold are predicted as `sign`
         """
 
-        # sort by values, keep labels accordingly
-        combined = np.vstack((values, labels))
-        combined.sort(axis=0)
-        values = combined[0]
-        labels = combined[1]
+        sorted_indices = values.argsort()
+        labels = labels[sorted_indices]
+        values = values[sorted_indices]
         values = np.concatenate([[-np.inf], (values[1:] + values[:-1]) / 2, [np.inf]])
         minimal_error_labels = labels[np.sign(labels) == sign]
-        inital_error = np.sum(np.abs(minimal_error_labels)) # todo make sure
+        inital_error = np.sum(np.abs(minimal_error_labels))
         possible_errors = np.append(inital_error, inital_error - np.cumsum(labels * sign))
         thr_idx = np.argmin(possible_errors)
         return values[thr_idx], possible_errors[thr_idx]
 
+        # ***first version***
         # total_weights = np.sum(abs(labels))
         # cur_loss = self._weighted_loss(labels, np.ones(labels.shape[0])) * sign
         # best_loss = cur_loss
@@ -147,10 +146,10 @@ class DecisionStump(BaseEstimator):
 
     def _weighted_loss(self, labels, preds):
         prod = labels * preds
-        ind = np.where(prod < 0)
+        ind = np.where(prod < 0)  # mistakes indices
         loss_sum = 0
         for i in ind[0]:
-            loss_sum += abs(prod[i])
+            loss_sum += abs(labels[i])
         return loss_sum
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
