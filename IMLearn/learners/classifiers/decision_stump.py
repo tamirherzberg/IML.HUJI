@@ -129,7 +129,7 @@ class DecisionStump(BaseEstimator):
         thr_idx = np.argmin(possible_errors)
         return values[thr_idx], possible_errors[thr_idx]
 
-        # ***first version***
+        # ***first version*** todo: delete
         # total_weights = np.sum(abs(labels))
         # cur_loss = self._weighted_loss(labels, np.ones(labels.shape[0])) * sign
         # best_loss = cur_loss
@@ -143,6 +143,30 @@ class DecisionStump(BaseEstimator):
         #     else:
         #         cur_loss += abs(labels[i - 1])
         # return values[best_ind], best_loss / total_weights
+
+        # *** another version ***
+        # sorted_indexes = values.argsort()
+        # labels = labels[sorted_indexes]
+        # values = values[sorted_indexes]
+        # current_loss = self._weighted_loss(labels, np.ones(len(labels)) * sign)
+        # threshold_index = 0
+        # final_loss = current_loss
+
+        for i in range(len(values)):
+            # if the true label of the sample which we just put left to the threshold
+            # (that is we labeled it as -sign) is sign, we add it to the loss:
+            if 0 < i:
+                if np.sign(labels[i - 1]) == sign:
+                    current_loss += abs(labels[i - 1])
+                else:  # it means that before we change the threshold its label was wrong, and now it's true so we
+                    # decrease the loss
+                    current_loss -= abs(labels[i - 1])
+            if current_loss < final_loss:
+                final_loss = current_loss
+                threshold_index = i
+
+        return values[threshold_index], final_loss / np.sum(abs(labels))
+
 
     def _weighted_loss(self, labels, preds):
         prod = labels * preds

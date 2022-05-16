@@ -9,6 +9,7 @@ from plotly.subplots import make_subplots
 pio.templates.default = "simple_white"
 pio.renderers.default = "chrome"
 
+
 def generate_data(n: int, noise_ratio: float) -> Tuple[np.ndarray, np.ndarray]:
     """
     Generate a dataset in R^2 of specified size
@@ -49,19 +50,32 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     noiseless_train_loss = []
     noiseless_test_loss = []
     learners_num = np.arange(1, n_learners + 1)
-    for t in learners_num:
-        noiseless_train_loss.append(ab.partial_loss(train_X, train_y, t))
-        noiseless_test_loss.append(ab.partial_loss(test_X, test_y, t))
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=learners_num, y=noiseless_train_loss,
-                             mode="lines", name="Train"))
-    fig.add_trace(go.Scatter(x=learners_num, y=noiseless_test_loss,
-                             mode="lines", name="Test"))
-    fig.show()
+    # for t in learners_num:
+    #     noiseless_train_loss.append(ab.partial_loss(train_X, train_y, t))
+    #     noiseless_test_loss.append(ab.partial_loss(test_X, test_y, t))
+    # fig1 = go.Figure()
+    # fig1.add_trace(go.Scatter(x=learners_num, y=noiseless_train_loss,
+    #                           mode="lines", name="Train"))
+    # fig1.add_trace(go.Scatter(x=learners_num, y=noiseless_test_loss,
+    #                           mode="lines", name="Test"))
+    # fig1.show()
 
     # Question 2: Plotting decision surfaces
     T = [5, 50, 100, 250]
     lims = np.array([np.r_[train_X, test_X].min(axis=0), np.r_[train_X, test_X].max(axis=0)]).T + np.array([-.1, .1])
+
+    fig2 = make_subplots(rows=2, cols=2, subplot_titles=[f"{t} classifiers" for t in T],
+                         horizontal_spacing=0.03, vertical_spacing=.08)
+
+    for i, t in enumerate(T):
+        fig2.add_traces([decision_surface(lambda X: ab.partial_predict(X, t), lims[0], lims[1], showscale=False),
+                         go.Scatter(x=test_X[:, 0], y=test_X[:, 1], mode="markers", showlegend=False,
+                                    marker=dict(color=test_y, line=dict(color="black", width=1)))],
+                        rows=1 if i < 2 else 2,
+                        cols=(i % 2) + 1)
+    fig2.update_layout(title=f"Decision Boundaries Obtained By Using Various Ensemble Sizes",
+                       margin=dict(t=100)).update_xaxes(visible=False).update_yaxes(visible=False)
+    fig2.show()
 
     raise NotImplementedError()
 
