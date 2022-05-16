@@ -50,15 +50,15 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     noiseless_train_loss = []
     noiseless_test_loss = []
     learners_num = np.arange(1, n_learners + 1)
-    # for t in learners_num:
-    #     noiseless_train_loss.append(ab.partial_loss(train_X, train_y, t))
-    #     noiseless_test_loss.append(ab.partial_loss(test_X, test_y, t))
-    # fig1 = go.Figure()
-    # fig1.add_trace(go.Scatter(x=learners_num, y=noiseless_train_loss,
-    #                           mode="lines", name="Train"))
-    # fig1.add_trace(go.Scatter(x=learners_num, y=noiseless_test_loss,
-    #                           mode="lines", name="Test"))
-    # fig1.show()
+    for t in learners_num:  # todo:uncomment
+        noiseless_train_loss.append(ab.partial_loss(train_X, train_y, t))
+        noiseless_test_loss.append(ab.partial_loss(test_X, test_y, t))
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(x=learners_num, y=noiseless_train_loss,
+                              mode="lines", name="Train"))
+    fig1.add_trace(go.Scatter(x=learners_num, y=noiseless_test_loss,
+                              mode="lines", name="Test"))
+    fig1.show()
 
     # Question 2: Plotting decision surfaces
     T = [5, 50, 100, 250]
@@ -77,10 +77,19 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
                        margin=dict(t=100)).update_xaxes(visible=False).update_yaxes(visible=False)
     fig2.show()
 
-    raise NotImplementedError()
-
     # Question 3: Decision surface of best performing ensemble
-    raise NotImplementedError()
+    from IMLearn.metrics.loss_functions import accuracy
+    best_ensemble_idx = np.argmin(noiseless_test_loss)
+    fig3 = make_subplots(rows=1, cols=1)
+    fig3.add_traces(
+        [decision_surface(lambda X: ab.partial_predict(X, best_ensemble_idx), lims[0], lims[1], showscale=False),
+         go.Scatter(x=test_X[:, 0], y=test_X[:, 1], mode="markers", showlegend=False,
+                    marker=dict(color=test_y, line=dict(color="black", width=1)))])
+    fig3.update_layout(title=f"Decision Boundary of Best Performing Ensemble\n"
+ f"Size = {best_ensemble_idx + 1}, Accuracy = {accuracy(test_y, ab.partial_predict(test_X, best_ensemble_idx))} "
+                             f"/ {1 - noiseless_test_loss[best_ensemble_idx]}", #  todo delete
+                       margin=dict(t=100)).update_xaxes(visible=False).update_yaxes(visible=False)
+    fig3.show()
 
     # Question 4: Decision surface with weighted samples
     raise NotImplementedError()
