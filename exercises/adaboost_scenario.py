@@ -86,7 +86,7 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
                     marker=dict(color=test_y, line=dict(color="black", width=1)))])
     fig3.update_layout(title=f"Decision Boundary of Best Performing Ensemble\n"
                              f"Size = {best_ensemble_idx + 1},"
-                             f" Accuracy = {1 - noiseless_test_loss[best_ensemble_idx]}",
+                             f" Accuracy = {1 - noiseless_test_loss[best_ensemble_idx]}, noise = {noise}",
                        margin=dict(t=100)).update_xaxes(visible=False).update_yaxes(visible=False)
     fig3.show()
 
@@ -96,10 +96,11 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
                       go.Scatter(x=train_X[:, 0], y=train_X[:, 1], mode="markers", showlegend=False,
                                  marker=dict(color=train_y, size=D_norm,
                                              line=dict(color="black", width=1)))],
-                     layout=dict(title=f"Decision Surface of Weighted Training Set"))
+                     layout=dict(title=f"Decision Surface of Weighted Training Set (noise = {noise})"))
     fig4.show()
 
 
 if __name__ == '__main__':
     np.random.seed(0)
     fit_and_evaluate_adaboost(noise=0)
+    fit_and_evaluate_adaboost(noise=0.4)
