@@ -120,14 +120,14 @@ class DecisionStump(BaseEstimator):
         """
 
         sorted_indices = values.argsort()
-        labels = labels[sorted_indices]
-        values = values[sorted_indices]
+        labels, values = labels[sorted_indices], values[sorted_indices]
         values = np.concatenate([[-np.inf], (values[1:] + values[:-1]) / 2, [np.inf]])
         minimal_error_labels = labels[np.sign(labels) == sign]
         inital_error = np.sum(np.abs(minimal_error_labels))
         possible_errors = np.append(inital_error, inital_error - np.cumsum(labels * sign))
         thr_idx = np.argmin(possible_errors)
         return values[thr_idx], possible_errors[thr_idx]
+
 
         # ***first version*** todo: delete
         # total_weights = np.sum(abs(labels))
@@ -152,20 +152,20 @@ class DecisionStump(BaseEstimator):
         # threshold_index = 0
         # final_loss = current_loss
 
-        for i in range(len(values)):
-            # if the true label of the sample which we just put left to the threshold
-            # (that is we labeled it as -sign) is sign, we add it to the loss:
-            if 0 < i:
-                if np.sign(labels[i - 1]) == sign:
-                    current_loss += abs(labels[i - 1])
-                else:  # it means that before we change the threshold its label was wrong, and now it's true so we
-                    # decrease the loss
-                    current_loss -= abs(labels[i - 1])
-            if current_loss < final_loss:
-                final_loss = current_loss
-                threshold_index = i
-
-        return values[threshold_index], final_loss / np.sum(abs(labels))
+        # for i in range(len(values)):
+        #     # if the true label of the sample which we just put left to the threshold
+        #     # (that is we labeled it as -sign) is sign, we add it to the loss:
+        #     if 0 < i:
+        #         if np.sign(labels[i - 1]) == sign:
+        #             current_loss += abs(labels[i - 1])
+        #         else:  # it means that before we change the threshold its label was wrong, and now it's true so we
+        #             # decrease the loss
+        #             current_loss -= abs(labels[i - 1])
+        #     if current_loss < final_loss:
+        #         final_loss = current_loss
+        #         threshold_index = i
+        #
+        # return values[threshold_index], final_loss / np.sum(abs(labels))
 
 
     def _weighted_loss(self, labels, preds):
