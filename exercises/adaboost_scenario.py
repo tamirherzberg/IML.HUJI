@@ -50,7 +50,7 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     noiseless_train_loss = []
     noiseless_test_loss = []
     learners_num = np.arange(1, n_learners + 1)
-    for t in learners_num:  # todo:uncomment
+    for t in learners_num:
         noiseless_train_loss.append(ab.partial_loss(train_X, train_y, t))
         noiseless_test_loss.append(ab.partial_loss(test_X, test_y, t))
     fig1 = go.Figure()
@@ -58,6 +58,8 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
                               mode="lines", name="Train"))
     fig1.add_trace(go.Scatter(x=learners_num, y=noiseless_test_loss,
                               mode="lines", name="Test"))
+    fig1.update_layout(title=f"Train and Test Errors as Function of Number of Learners (noise = {noise})",
+                       margin=dict(t=100)).update_xaxes(visible=False).update_yaxes(visible=False)
     fig1.show()
 
     # Question 2: Plotting decision surfaces
@@ -73,7 +75,7 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
                                     marker=dict(color=test_y, line=dict(color="black", width=1)))],
                         rows=1 if i < 2 else 2,
                         cols=(i % 2) + 1)
-    fig2.update_layout(title=f"Decision Boundaries Obtained By Using Various Ensemble Sizes",
+    fig2.update_layout(title=f"Decision Boundaries Obtained By Using Various Ensemble Sizes (noise = {noise})",
                        margin=dict(t=100)).update_xaxes(visible=False).update_yaxes(visible=False)
     fig2.show()
 
@@ -103,4 +105,5 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
 if __name__ == '__main__':
     np.random.seed(0)
     fit_and_evaluate_adaboost(noise=0)
+    # Question 5:
     fit_and_evaluate_adaboost(noise=0.4)

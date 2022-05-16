@@ -128,23 +128,6 @@ class DecisionStump(BaseEstimator):
         thr_idx = np.argmin(possible_errors)
         return values[thr_idx], possible_errors[thr_idx]
 
-
-        # ***first version*** todo: delete
-        # total_weights = np.sum(abs(labels))
-        # cur_loss = self._weighted_loss(labels, np.ones(labels.shape[0])) * sign
-        # best_loss = cur_loss
-        # best_ind = 0
-        # for i in range(1, values.shape[0]):
-        #     if np.sign(values[i - 1]) == -sign:
-        #         cur_loss -= abs(labels[i - 1])
-        #         if cur_loss < best_loss:
-        #             best_ind = i
-        #             best_loss = cur_loss
-        #     else:
-        #         cur_loss += abs(labels[i - 1])
-        # return values[best_ind], best_loss / total_weights
-
-
     def _weighted_loss(self, labels, preds):
         prod = labels * preds
         ind = np.where(prod < 0)  # mistakes indices
