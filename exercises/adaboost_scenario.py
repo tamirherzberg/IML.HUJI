@@ -78,7 +78,6 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     fig2.show()
 
     # Question 3: Decision surface of best performing ensemble
-    from IMLearn.metrics.loss_functions import accuracy
     best_ensemble_idx = np.argmin(noiseless_test_loss)
     fig3 = make_subplots(rows=1, cols=1)
     fig3.add_traces(
@@ -86,13 +85,12 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
          go.Scatter(x=test_X[:, 0], y=test_X[:, 1], mode="markers", showlegend=False,
                     marker=dict(color=test_y, line=dict(color="black", width=1)))])
     fig3.update_layout(title=f"Decision Boundary of Best Performing Ensemble\n"
- f"Size = {best_ensemble_idx + 1}, Accuracy = {accuracy(test_y, ab.partial_predict(test_X, best_ensemble_idx))} "
-                             f"/ {1 - noiseless_test_loss[best_ensemble_idx]}", #  todo delete
+                             f"Size = {best_ensemble_idx + 1},"
+                             f" Accuracy = {1 - noiseless_test_loss[best_ensemble_idx]}",
                        margin=dict(t=100)).update_xaxes(visible=False).update_yaxes(visible=False)
     fig3.show()
 
     # Question 4: Decision surface with weighted samples
-    raise NotImplementedError()
 
 
 if __name__ == '__main__':
