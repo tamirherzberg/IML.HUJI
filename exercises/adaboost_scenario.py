@@ -91,6 +91,13 @@ def fit_and_evaluate_adaboost(noise, n_learners=250, train_size=5000, test_size=
     fig3.show()
 
     # Question 4: Decision surface with weighted samples
+    D_norm = ab.D_ / np.max(ab.D_) * 5
+    fig4 = go.Figure([decision_surface(ab.predict, lims[0], lims[1], showscale=False),
+                      go.Scatter(x=train_X[:, 0], y=train_X[:, 1], mode="markers", showlegend=False,
+                                 marker=dict(color=train_y, size=D_norm,
+                                             line=dict(color="black", width=1)))],
+                     layout=dict(title=f"Decision Surface of Weighted Training Set"))
+    fig4.show()
 
 
 if __name__ == '__main__':
