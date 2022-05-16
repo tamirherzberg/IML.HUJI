@@ -61,7 +61,6 @@ class AdaBoost(BaseEstimator):
             self.D_ = self.D_ * np.exp(y * (-w) * wl.predict(X))
             self.D_ /= np.sum(self.D_)  # normalized
 
-
     def _predict(self, X):
         """
         Predict responses for given samples using fitted estimator
@@ -141,4 +140,3 @@ class AdaBoost(BaseEstimator):
         """
         from ..metrics.loss_functions import misclassification_error
         return misclassification_error(y, self.partial_predict(X, T))
-
