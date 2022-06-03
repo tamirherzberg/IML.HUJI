@@ -12,6 +12,9 @@ from utils import *
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+pio.renderers.default = "chrome"  # didn't show it to me otherwise
+pio.templates.default = "simple_white"
+
 
 def select_polynomial_degree(n_samples: int = 100, noise: float = 5):
     """
@@ -27,7 +30,26 @@ def select_polynomial_degree(n_samples: int = 100, noise: float = 5):
     """
     # Question 1 - Generate dataset for model f(x)=(x+3)(x+2)(x+1)(x-1)(x-2) + eps for eps Gaussian noise
     # and split into training- and testing portions
-    raise NotImplementedError()
+
+    def f(x): return (x + 3) * (x + 2) * (x + 1) * (x - 1) * (x - 2)
+
+    X = np.linspace(-1.2, 2, num=n_samples)
+    eps = np.random.normal(scale=noise, size=n_samples)
+    y = f(X) + eps
+    pd_y = pd.Series(y)
+    pd_X = pd.DataFrame(X)
+    train_X, train_y, test_X, test_y = split_train_test(pd_X, pd_y, 2 / 3)
+    train_X, train_y, test_X, test_y = np.asarray(train_X), np.asarray(train_y), np.asarray(test_X), np.asarray(test_y)
+
+    fig1 = go.Figure([go.Scatter(x=X, y=(f(X)), mode="markers", name="Real Points", marker=dict(color="black", opacity=.7),
+                                showlegend=False),
+                     go.Scatter(x=np.concatenate(test_X), y=(test_y), mode="markers", name="Test Set",
+                                marker=dict(color="red", opacity=.7),
+                                showlegend=False),
+                     go.Scatter(x=np.concatenate(train_X), y=(test_y), mode="markers", name="Train Set",
+                                marker=dict(color="blue", opacity=.7),
+                                showlegend=False)])
+    fig1.show()
 
     # Question 2 - Perform CV for polynomial fitting with degrees 0,1,...,10
     raise NotImplementedError()
@@ -61,4 +83,5 @@ def select_regularization_parameter(n_samples: int = 50, n_evaluations: int = 50
 
 if __name__ == '__main__':
     np.random.seed(0)
+    select_polynomial_degree()
     raise NotImplementedError()

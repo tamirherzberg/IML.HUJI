@@ -1,7 +1,7 @@
 from typing import Tuple
 import numpy as np
 import pandas as pd
-
+from copy import deepcopy
 
 def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .75) \
         -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
@@ -10,7 +10,7 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
 
     Parameters
     ----------
-    X : DataFrame of shape (n_samples, n_features)
+    X_cpy : DataFrame of shape (n_samples, n_features)
         Data frame of samples and feature values.
 
     y : Series of shape (n_samples, )
@@ -33,8 +33,9 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
         Responses of test samples
 
     """
-    X.insert(0, 'response', y)  # to make sure we don't mix up samples' response
-    shuffled = X.sample(frac=1)
+    X_cpy = deepcopy(X)
+    X_cpy.insert(0, 'response', y)  # to make sure we don't mix up samples' response
+    shuffled = X_cpy.sample(frac=1)
     comb_train = shuffled.iloc[:int(np.ceil(train_proportion * len(shuffled)))]
     comb_test = shuffled.iloc[int(np.ceil(train_proportion * len(shuffled))):]
     train_y = comb_train['response']
