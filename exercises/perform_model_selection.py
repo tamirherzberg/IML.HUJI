@@ -35,7 +35,7 @@ def select_polynomial_degree(n_samples: int = 100, noise: float = 5):
     def f(x): return (x + 3) * (x + 2) * (x + 1) * (x - 1) * (x - 2)
 
     X = np.linspace(-1.2, 2, num=n_samples)
-    eps = np.random.normal(scale=noise, size=n_samples)
+    eps = np.random.normal(0, scale=noise, size=n_samples)
     y = f(X) + eps
     pd_y = pd.Series(y)
     pd_X = pd.DataFrame(X)
@@ -48,7 +48,7 @@ def select_polynomial_degree(n_samples: int = 100, noise: float = 5):
                     marker=dict(color="black", opacity=.7)),
          go.Scatter(x=test_X, y=test_y, mode="markers", name="Test Set",
                     marker=dict(color="red", opacity=.7)),
-         go.Scatter(x=train_X, y=test_y, mode="markers", name="Train Set",
+         go.Scatter(x=train_X, y=train_y, mode="markers", name="Train Set",
                     marker=dict(color="blue", opacity=.7))
          ],
         layout=go.Layout(
@@ -77,7 +77,11 @@ def select_polynomial_degree(n_samples: int = 100, noise: float = 5):
     fig2.show()
 
     # Question 3 - Using best value of k, fit a k-degree polynomial model and report test error
-    raise NotImplementedError()
+    best_k = np.argmin(val_scores)
+    model = PolynomialFitting(best_k)
+    model.fit(X, y)
+    model_test_error = np.round(mean_square_error(train_y, model.predict(train_X)), 2)
+    print(f"Best K value: {best_k}, Its Model's Test Error: {model_test_error}.")
 
 
 def select_regularization_parameter(n_samples: int = 50, n_evaluations: int = 500):
@@ -106,4 +110,6 @@ def select_regularization_parameter(n_samples: int = 50, n_evaluations: int = 50
 if __name__ == '__main__':
     np.random.seed(0)
     select_polynomial_degree()
+    select_polynomial_degree(noise=0)
+    select_polynomial_degree(n_samples=1500, noise=10)
     raise NotImplementedError()
