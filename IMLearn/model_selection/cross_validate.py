@@ -37,6 +37,7 @@ def cross_validate(estimator: BaseEstimator, X: np.ndarray, y: np.ndarray,
     validation_score: float
         Average validation score over folds
     """
+
     X_cpy = deepcopy(X)
     folds_idx_list = [i * (X_cpy.shape[0] // cv) for i in range(cv)] + [X_cpy.shape[0]]
     train_errors = []
@@ -45,10 +46,9 @@ def cross_validate(estimator: BaseEstimator, X: np.ndarray, y: np.ndarray,
         fold_idx_range = np.arange(folds_idx_list[i], folds_idx_list[i + 1])
         cur_val_X, cur_val_y = X_cpy[fold_idx_range], y[fold_idx_range]
         cur_train_X, cur_train_y = np.delete(X_cpy, fold_idx_range, 0), np.delete(y, fold_idx_range, 0)
-        estimator = BaseEstimator()
         estimator.fit(cur_train_X, cur_train_y)
-        cur_train_err = scoring(cur_train_X, cur_train_y)
-        cur_val_err = scoring(cur_val_X, cur_val_y)
+        cur_train_err = scoring(cur_train_y, estimator.predict(cur_train_X))
+        cur_val_err = scoring(cur_val_y, estimator.predict(cur_val_X))
         train_errors.append(cur_train_err)
         val_errors.append(cur_val_err)
     return np.array(train_errors).mean(), np.array(val_errors).mean()

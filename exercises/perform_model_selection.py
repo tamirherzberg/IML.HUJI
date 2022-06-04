@@ -28,6 +28,7 @@ def select_polynomial_degree(n_samples: int = 100, noise: float = 5):
     noise: float, default = 5
         Noise level to simulate in responses
     """
+
     # Question 1 - Generate dataset for model f(x)=(x+3)(x+2)(x+1)(x-1)(x-2) + eps for eps Gaussian noise
     # and split into training- and testing portions
 
@@ -39,20 +40,41 @@ def select_polynomial_degree(n_samples: int = 100, noise: float = 5):
     pd_y = pd.Series(y)
     pd_X = pd.DataFrame(X)
     train_X, train_y, test_X, test_y = split_train_test(pd_X, pd_y, 2 / 3)
-    train_X, train_y, test_X, test_y = np.asarray(train_X), np.asarray(train_y), np.asarray(test_X), np.asarray(test_y)
+    train_X, train_y, test_X, test_y = np.concatenate(np.array(train_X)), np.array(train_y), np.concatenate(
+        np.array(test_X)), np.array(test_y)
 
-    fig1 = go.Figure([go.Scatter(x=X, y=(f(X)), mode="markers", name="Real Points", marker=dict(color="black", opacity=.7),
-                                showlegend=False),
-                     go.Scatter(x=np.concatenate(test_X), y=(test_y), mode="markers", name="Test Set",
-                                marker=dict(color="red", opacity=.7),
-                                showlegend=False),
-                     go.Scatter(x=np.concatenate(train_X), y=(test_y), mode="markers", name="Train Set",
-                                marker=dict(color="blue", opacity=.7),
-                                showlegend=False)])
+    fig1 = go.Figure(
+        [go.Scatter(x=X, y=(f(X)), mode="markers", name="Real Points",
+                    marker=dict(color="black", opacity=.7)),
+         go.Scatter(x=test_X, y=test_y, mode="markers", name="Test Set",
+                    marker=dict(color="red", opacity=.7)),
+         go.Scatter(x=train_X, y=test_y, mode="markers", name="Train Set",
+                    marker=dict(color="blue", opacity=.7))
+         ],
+        layout=go.Layout(
+            title=f"Real Model vs Noise Model Train and Test Sets",
+            xaxis_title="Sample",
+            yaxis_title="Response")
+    )
     fig1.show()
 
     # Question 2 - Perform CV for polynomial fitting with degrees 0,1,...,10
-    raise NotImplementedError()
+    train_scores, val_scores = [], []
+    ks = np.arange(11)
+    for k in ks:
+        avg_train_score, avg_val_score = cross_validate(
+            PolynomialFitting(k), train_X, train_y, mean_square_error, cv=5)
+        train_scores.append(avg_train_score)
+        val_scores.append(avg_val_score)
+    train_scores, val_scores = np.array(train_scores), np.array(val_scores)
+    fig2 = go.Figure([
+        go.Scatter(x=ks, y=train_scores, mode="lines+markers", name="Train Average Score"),
+        go.Scatter(x=ks, y=val_scores, mode="lines+markers", name="Validation Average Score")],
+        layout=go.Layout(
+            title=f"Average Train and Validation Errors As A Function of Polyfit Degree",
+            xaxis_title="Polyfit Degree",
+            yaxis_title="MSE"))
+    fig2.show()
 
     # Question 3 - Using best value of k, fit a k-degree polynomial model and report test error
     raise NotImplementedError()
