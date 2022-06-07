@@ -104,8 +104,12 @@ def select_regularization_parameter(n_samples: int = 50, n_evaluations: int = 50
     train_y, test_y = np.split(y_full, n_samples_list, axis=0)
 
     # Question 7 - Perform CV for different values of the regularization parameter for Ridge and Lasso regressions
-    for lamda in np.linspace(1, 2.5, n_evaluations):
+    lamda_range = np.linspace(0.01, 2, n_evaluations)
+    ridge_train_scores, ridge_val_scores = [], []
+    lasso_train_scores, lasso_val_scores = [], []
+    for lamda in lamda_range:
         lasso_avg_train, lasso_avg_val = cross_validate(Lasso(alpha=lamda), train_X, train_y, mean_square_error)
+        ridge_avg_train, ridge_avg_val = cross_validate(RidgeRegression(lam=lamda), train_X, train_y, mean_square_error)
 
     # Question 8 - Compare best Ridge model, best Lasso model and Least Squares model
     raise NotImplementedError()
