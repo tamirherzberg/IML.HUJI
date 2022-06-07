@@ -98,10 +98,14 @@ def select_regularization_parameter(n_samples: int = 50, n_evaluations: int = 50
         Number of regularization parameter values to evaluate for each of the algorithms
     """
     # Question 6 - Load diabetes dataset and split into training and testing portions
-    raise NotImplementedError()
+    X_full, y_full = datasets.load_diabetes(return_X_y=True)
+    n_samples_list = [n_samples]
+    train_X, test_X = np.split(X_full, n_samples_list, axis=0)
+    train_y, test_y = np.split(y_full, n_samples_list, axis=0)
 
     # Question 7 - Perform CV for different values of the regularization parameter for Ridge and Lasso regressions
-    raise NotImplementedError()
+    for lamda in np.linspace(1, 2.5, n_evaluations):
+        lasso_avg_train, lasso_avg_val = cross_validate(Lasso(alpha=lamda), train_X, train_y, mean_square_error)
 
     # Question 8 - Compare best Ridge model, best Lasso model and Least Squares model
     raise NotImplementedError()
@@ -109,7 +113,7 @@ def select_regularization_parameter(n_samples: int = 50, n_evaluations: int = 50
 
 if __name__ == '__main__':
     np.random.seed(0)
-    select_polynomial_degree()
-    select_polynomial_degree(noise=0)
-    select_polynomial_degree(n_samples=1500, noise=10)
-    raise NotImplementedError()
+    # select_polynomial_degree()
+    # select_polynomial_degree(noise=0)
+    # select_polynomial_degree(n_samples=1500, noise=10) TODO!
+    select_regularization_parameter()
