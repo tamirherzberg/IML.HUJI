@@ -52,7 +52,7 @@ def select_polynomial_degree(n_samples: int = 100, noise: float = 5):
                     marker=dict(color="blue", opacity=.7))
          ],
         layout=go.Layout(
-            title=f"Real Model vs Noise Model Train and Test Sets",
+            title=f"Real Model vs Noise (Sigma = {noise }) Model Train and Test Sets",
             xaxis_title="Sample",
             yaxis_title="Response")
     )
