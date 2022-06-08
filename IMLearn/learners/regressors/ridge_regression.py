@@ -61,10 +61,12 @@ class RidgeRegression(BaseEstimator):
         Fits model with or without an intercept depending on value of `self.include_intercept_`
         """
         d = X.shape[1]
-        i_d = np.identity(d)
         if self.include_intercept_:
             X = np.c_[np.ones(X.shape[0]), X]  # add ones column
+            i_d = np.identity(d + 1)
             i_d[0, 0] = 0  # todo: make sure
+        else:
+            i_d = np.identity(d)
         self.coefs_ = inv(X.T @ X + self.lam_ * i_d) @ X.T @ y
 
     def _predict(self, X: np.ndarray) -> np.ndarray:

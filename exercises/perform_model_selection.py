@@ -110,14 +110,41 @@ def select_regularization_parameter(n_samples: int = 50, n_evaluations: int = 50
     for lamda in lamda_range:
         lasso_avg_train, lasso_avg_val = cross_validate(Lasso(alpha=lamda), train_X, train_y, mean_square_error)
         ridge_avg_train, ridge_avg_val = cross_validate(RidgeRegression(lam=lamda), train_X, train_y, mean_square_error)
+        lasso_train_scores.append(lasso_avg_train)
+        lasso_val_scores.append(lasso_avg_val)
+        ridge_train_scores.append(ridge_avg_train)
+        ridge_val_scores.append(ridge_avg_val)
+    fig3 = go.Figure([
+        go.Scatter(x=lamda_range, y=ridge_train_scores, mode="lines", name="Ridge Train Average Score"),
+        go.Scatter(x=lamda_range, y=ridge_val_scores, mode="lines", name="Ridge Validation Average Score"),
+        go.Scatter(x=lamda_range, y=lasso_train_scores, mode="lines", name="Lasso Train Average Score"),
+        go.Scatter(x=lamda_range, y=lasso_val_scores, mode="lines", name="Lasso Validation Average Score")
+    ], layout=go.Layout(
+        title=f"Average Train and Validation Errors For Different Regularization Constants",
+        xaxis_title="Lamda Values",
+        yaxis_title="MSE")
+    )
+    fig3.show()
 
     # Question 8 - Compare best Ridge model, best Lasso model and Least Squares model
-    raise NotImplementedError()
+    ridge_optimal_lamda_val = lamda_range[np.argmin([ridge_val_scores])]
+    print(f"Lamda = {ridge_optimal_lamda_val} minimizes Ridge validation error")
+    lasso_optimal_lamda_val = lamda_range[np.argmin([lasso_val_scores])]
+    print(f"Lamda = {lasso_optimal_lamda_val} minimizes Lasso validation error")
+    opt_ridge = RidgeRegression(lam=ridge_optimal_lamda_val)
+    opt_lasso = Lasso(alpha=lasso_optimal_lamda_val)
+    least_squares = LinearRegression()
+    opt_lasso.fit(X_full, y_full)
+    opt_ridge.fit(X_full, y_full)
+    least_squares.fit(X_full, y_full)
+    print(f"Ridge test error {opt_ridge.loss(test_X, test_y)}")
+    print(f"Lasso test error {mean_square_error(test_y, opt_lasso.predict(test_X))}")
+    print(f"Least Squares test error {least_squares.loss(test_X, test_y)}")
 
 
 if __name__ == '__main__':
     np.random.seed(0)
-    # select_polynomial_degree()
-    # select_polynomial_degree(noise=0)
-    # select_polynomial_degree(n_samples=1500, noise=10) TODO!
+    select_polynomial_degree()
+    select_polynomial_degree(noise=0)
+    select_polynomial_degree(n_samples=1500, noise=10)
     select_regularization_parameter()

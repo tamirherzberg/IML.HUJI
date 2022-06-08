@@ -37,7 +37,6 @@ def cross_validate(estimator: BaseEstimator, X: np.ndarray, y: np.ndarray,
     validation_score: float
         Average validation score over folds
     """
-
     X_cpy = deepcopy(X)
     folds_idx_list = [i * (X_cpy.shape[0] // cv) for i in range(cv)] + [X_cpy.shape[0]]
     train_errors = []
