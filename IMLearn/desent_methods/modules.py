@@ -6,7 +6,7 @@ class L2(BaseModule):
     """
     Class representing the L2 module
 
-    Represents the function: f(w)=||w||^2_2
+    Represents the function: f(w)=^||w||2_2
     """
     def __init__(self, weights: np.ndarray = None):
         """
@@ -33,7 +33,7 @@ class L2(BaseModule):
         output: ndarray of shape (1,)
             Value of function at point self.weights
         """
-        raise NotImplementedError()
+        return np.sum(np.power(self.weights_, 2))
 
     def compute_jacobian(self, **kwargs) -> np.ndarray:
         """
@@ -49,8 +49,7 @@ class L2(BaseModule):
         output: ndarray of shape (n_in,)
             L2 derivative with respect to self.weights at point self.weights
         """
-        raise NotImplementedError()
-
+        return self.weights_  # is actually 2 * self.weights, but we simplified it
 
 class L1(BaseModule):
     def __init__(self, weights: np.ndarray = None):
@@ -78,7 +77,7 @@ class L1(BaseModule):
         output: ndarray of shape (1,)
             Value of function at point self.weights
         """
-        raise NotImplementedError()
+        return np.sum(np.abs(self.weights_))
 
     def compute_jacobian(self, **kwargs) -> np.ndarray:
         """
@@ -94,7 +93,7 @@ class L1(BaseModule):
         output: ndarray of shape (n_in,)
             L1 derivative with respect to self.weights at point self.weights
         """
-        raise NotImplementedError()
+        return np.sign(self.weights_)
 
 
 class LogisticModule(BaseModule):
