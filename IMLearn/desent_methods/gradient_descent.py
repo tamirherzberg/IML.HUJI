@@ -39,6 +39,7 @@ class GradientDescent:
         Callable function receives as input any argument relevant for the current GD iteration. Arguments
         are specified in the `GradientDescent.fit` function
     """
+
     def __init__(self,
                  learning_rate: BaseLR = FixedLR(1e-3),
                  tol: float = 1e-5,
@@ -119,4 +120,43 @@ class GradientDescent:
                 Euclidean norm of w^(t)-w^(t-1)
 
         """
-        raise NotImplementedError()
+        eta = self.learning_rate_
+        former_x = f.weights_
+        x = former_x
+        x_sum = former_x
+        best_x = former_x
+        best_loss = f.compute_output()
+        t = 1
+
+        while t <= self.max_iter_:
+            # update
+            x -= eta.lr_step(t=t) * f.compute_jacobian(X=X, y=y)
+            f.weights_ = x
+            x_loss = f.compute_output()
+            if x_loss < best_loss:
+                best_x = x
+                best_loss = x_loss
+            x_sum += x
+
+            self.callback_(solver=self, weights=x, val=None, grad=None, t=t,
+                           eta=eta.lr_step(t), delta=delta)  # TODO: weights? val? grad?
+
+            # stop if the Euclidean norm of x^(t)-x^(t-1) <= given tolerance
+            delta = np.linalg.norm(x - former_x, ord=2)
+            if delta <= self.tol_:
+                t += 1  # make sure t's value is synced in both stopping criterias
+                break
+
+            # advance
+            former_x = x
+            t += 1
+
+        t -= 1  # when stopping criteria is reached t is always higher by one
+        if self.out_type_ == 'last':
+            return x
+        if self.out_type_ == 'best':
+            return best_x
+        if self.out_type_ == 'average':
+            return x_sum / t
+        else:
+            raise ValueError("Invalid out-type!")
