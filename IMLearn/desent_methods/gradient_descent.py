@@ -137,9 +137,10 @@ class GradientDescent:
                 best_x = x
                 best_loss = x_loss
             x_sum += x
+            grad = f.compute_jacobian(X=X, y=y)
 
-            self.callback_(solver=self, weights=x, val=None, grad=None, t=t,
-                           eta=eta.lr_step(t), delta=delta)  # TODO: weights? val? grad?
+            self.callback_(solver=self, weights=x, val=x_loss, grad=grad, t=t,
+                           eta=eta.lr_step(t), delta=delta)
 
             # stop if the Euclidean norm of x^(t)-x^(t-1) <= given tolerance
             delta = np.linalg.norm(x - former_x, ord=2)
