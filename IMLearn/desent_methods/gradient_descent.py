@@ -121,35 +121,35 @@ class GradientDescent:
 
         """
         eta = self.learning_rate_
-        former_x = f.weights_
-        x = former_x
-        x_sum = former_x
-        best_x = former_x
+        former_x = f.weights_.copy()
+        x = f.weights_.copy()
+        x_sum = f.weights_.copy()
+        best_x = f.weights_.copy()
         best_loss = f.compute_output()
         t = 1
 
         while t <= self.max_iter_:
             # update
-            x -= eta.lr_step(t=t) * f.compute_jacobian(X=X, y=y)
-            f.weights_ = x
+            x = former_x - eta.lr_step(t=t) * f.compute_jacobian(X=X, y=y)
+            f.weights_ = x.copy()
             x_loss = f.compute_output()
             if x_loss < best_loss:
                 best_x = x
                 best_loss = x_loss
             x_sum += x
             grad = f.compute_jacobian(X=X, y=y)
+            delta = np.linalg.norm(x - former_x, ord=2)
 
             self.callback_(solver=self, weights=x, val=x_loss, grad=grad, t=t,
-                           eta=eta.lr_step(t), delta=delta)
+                           eta=eta.lr_step(t=t), delta=delta)
 
             # stop if the Euclidean norm of x^(t)-x^(t-1) <= given tolerance
-            delta = np.linalg.norm(x - former_x, ord=2)
             if delta <= self.tol_:
                 t += 1  # make sure t's value is synced in both stopping criterias
                 break
 
             # advance
-            former_x = x
+            former_x = x.copy()
             t += 1
 
         t -= 1  # when stopping criteria is reached t is always higher by one

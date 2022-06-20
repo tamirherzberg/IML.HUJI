@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import plotly.io as pio
 from typing import Tuple, List, Callable, Type
 
 from IMLearn import BaseModule
@@ -10,6 +11,8 @@ from IMLearn.utils import split_train_test
 
 import plotly.graph_objects as go
 
+pio.renderers.default = "chrome"  # didn't show it to me otherwise
+pio.templates.default = "simple_white"
 
 def plot_descent_path(module: Type[BaseModule],
                       descent_path: np.ndarray,
@@ -75,15 +78,35 @@ def get_gd_state_recorder_callback() -> Tuple[Callable[[], None], List[np.ndarra
     """
     values = []
     weights = []
-    def callback(weights, val):
-        values.append(val)
-        weights.append(weights)
+    def callback(**kwargs):
+        values.append(kwargs['val'])
+        weights.append(kwargs['weights'])
     return callback, values, weights
 
 
 def compare_fixed_learning_rates(init: np.ndarray = np.array([np.sqrt(2), np.e / 3]),
                                  etas: Tuple[float] = (1, .1, .01, .001)):
-    raise NotImplementedError()
+    for objective in [L1, L2]:
+        obj_min_loss = np.inf
+        for eta in etas:
+            f = objective(init.copy())
+            state_callback, vals, weights = get_gd_state_recorder_callback()
+            gd = GradientDescent(learning_rate=FixedLR(eta), callback=state_callback)
+            min_solution = gd.fit(f, X=np.empty(0), y=np.empty(0))
+            des_path_title = f"{objective.__name__} Objective Descent Path<br>" \
+                             f"<sup>Eta = {eta}</sup>"
+            plot_descent_path(objective, np.array(weights), des_path_title).show()
+            convergence_rate_plot = go.Figure(data=[
+                go.Scatter(x=np.arange(len(vals)), y=np.array(vals), mode='markers')
+            ]).update_layout(
+                title=f"Gradient Descent Convergence Rate<br>"
+                      f"<sup>{objective.__name__} Objective, Eta = {eta}</sup>"
+            )
+            convergence_rate_plot.show()
+            eta_min_val = min(vals)
+            if eta_min_val < obj_min_loss:
+                obj_min_loss = eta_min_val
+        print(f"Minimum loss achieved in {objective.__name__} module is {obj_min_loss}") #TODO: make sure
 
 
 def compare_exponential_decay_rates(init: np.ndarray = np.array([np.sqrt(2), np.e / 3]),
