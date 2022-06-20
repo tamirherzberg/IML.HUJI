@@ -122,6 +122,7 @@ def compare_exponential_decay_rates(init: np.ndarray = np.array([np.sqrt(2), np.
         title="L1 Objective Gradient Descent Convergence Rate For Different Gammas"
     )
     lowest_norm = np.inf
+    desc_plot = None
     for gamma in gammas:
         f = L1(init.copy())
         state_callback, vals, weights = get_gd_state_recorder_callback()
@@ -132,16 +133,18 @@ def compare_exponential_decay_rates(init: np.ndarray = np.array([np.sqrt(2), np.
             x=np.arange(len(vals)), y=np.array(vals),
             name=f'gamma = {gamma}', mode='markers'
         ))
+        if gamma == .95:
+            des_path_title = f"{L2.__name__} Objective Descent Path<br>" \
+                             f"<sup>eta = {eta}, gamma = {gamma}</sup>"
+            desc_plot = plot_descent_path(L1, np.array(weights), des_path_title)
         min_gamma_norm = min(vals)
         if min_gamma_norm < lowest_norm:
             lowest_norm = min_gamma_norm
+    # Plot algorithm's convergence for the different values of gamma
     conv_rate_plot.show()
     print(f"Minimum norm achieved using exponential decay is {lowest_norm}")  # TODO: make sure
-    # Plot algorithm's convergence for the different values of gamma
-    raise NotImplementedError()
-
     # Plot descent path for gamma=0.95
-    raise NotImplementedError()
+    desc_plot.show()
 
 
 def load_data(path: str = "../datasets/SAheart.data", train_portion: float = .8) -> \
