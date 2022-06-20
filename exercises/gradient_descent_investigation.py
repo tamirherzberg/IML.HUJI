@@ -14,6 +14,7 @@ import plotly.graph_objects as go
 pio.renderers.default = "chrome"  # didn't show it to me otherwise
 pio.templates.default = "simple_white"
 
+
 def plot_descent_path(module: Type[BaseModule],
                       descent_path: np.ndarray,
                       title: str = "",
@@ -49,12 +50,14 @@ def plot_descent_path(module: Type[BaseModule],
     fig = plot_descent_path(IMLearn.desent_methods.modules.L1, np.ndarray([[1,1],[0,0]]))
     fig.show()
     """
+
     def predict_(w):
         return np.array([module(weights=wi).compute_output() for wi in w])
 
     from utils import decision_surface
     return go.Figure([decision_surface(predict_, xrange=xrange, yrange=yrange, density=70, showscale=False),
-                      go.Scatter(x=descent_path[:, 0], y=descent_path[:, 1], mode="markers+lines", marker_color="black")],
+                      go.Scatter(x=descent_path[:, 0], y=descent_path[:, 1], mode="markers+lines",
+                                 marker_color="black")],
                      layout=go.Layout(xaxis=dict(range=xrange),
                                       yaxis=dict(range=yrange),
                                       title=f"GD Descent Path {title}"))
@@ -78,9 +81,11 @@ def get_gd_state_recorder_callback() -> Tuple[Callable[[], None], List[np.ndarra
     """
     values = []
     weights = []
+
     def callback(**kwargs):
         values.append(kwargs['val'])
         weights.append(kwargs['weights'])
+
     return callback, values, weights
 
 
@@ -106,15 +111,32 @@ def compare_fixed_learning_rates(init: np.ndarray = np.array([np.sqrt(2), np.e /
             eta_min_val = min(vals)
             if eta_min_val < obj_min_loss:
                 obj_min_loss = eta_min_val
-        print(f"Minimum loss achieved in {objective.__name__} module is {obj_min_loss}") #TODO: make sure
+        print(f"Minimum loss achieved in {objective.__name__} module is {obj_min_loss}")  # TODO: make sure
 
 
 def compare_exponential_decay_rates(init: np.ndarray = np.array([np.sqrt(2), np.e / 3]),
                                     eta: float = .1,
                                     gammas: Tuple[float] = (.9, .95, .99, 1)):
     # Optimize the L1 objective using different decay-rate values of the exponentially decaying learning rate
-    raise NotImplementedError()
-
+    conv_rate_plot = go.Figure().update_layout(
+        title="L1 Objective Gradient Descent Convergence Rate For Different Gammas"
+    )
+    lowest_norm = np.inf
+    for gamma in gammas:
+        f = L1(init.copy())
+        state_callback, vals, weights = get_gd_state_recorder_callback()
+        gd = GradientDescent(learning_rate=ExponentialLR(eta, gamma),
+                             callback=state_callback)
+        min_solution = gd.fit(f, X=np.empty(0), y=np.empty(0))
+        conv_rate_plot.add_trace(go.Scatter(
+            x=np.arange(len(vals)), y=np.array(vals),
+            name=f'gamma = {gamma}', mode='markers'
+        ))
+        min_gamma_norm = min(vals)
+        if min_gamma_norm < lowest_norm:
+            lowest_norm = min_gamma_norm
+    conv_rate_plot.show()
+    print(f"Minimum norm achieved using exponential decay is {lowest_norm}")  # TODO: make sure
     # Plot algorithm's convergence for the different values of gamma
     raise NotImplementedError()
 
@@ -168,6 +190,6 @@ def fit_logistic_regression():
 
 if __name__ == '__main__':
     np.random.seed(0)
-    compare_fixed_learning_rates()
+    # compare_fixed_learning_rates() #TODO restore
     compare_exponential_decay_rates()
     fit_logistic_regression()
