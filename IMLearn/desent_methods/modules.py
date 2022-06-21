@@ -200,7 +200,7 @@ class RegularizedModule(BaseModule):
         self.include_intercept_ = include_intercept
 
         if weights is not None:
-            self.weights(weights)
+            self.weights = weights
 
     def compute_output(self, **kwargs) -> np.ndarray:
         """
@@ -216,7 +216,9 @@ class RegularizedModule(BaseModule):
         output: ndarray of shape (1,)
             Value of function at point self.weights
         """
-        raise NotImplementedError()
+        f = self.fidelity_module_.compute_output(**kwargs)
+        reg_term = self.lam_ * self.regularization_module_.compute_output(**kwargs)
+        return f + reg_term
 
     def compute_jacobian(self, **kwargs) -> np.ndarray:
         """
@@ -232,7 +234,11 @@ class RegularizedModule(BaseModule):
         output: ndarray of shape (n_in,)
             Derivative with respect to self.weights at point self.weights
         """
-        raise NotImplementedError()
+        if self.include_intercept_:
+            reg_jacobian = self.regularization_module_.compute_jacobian(**kwargs)
+        else:
+            reg_jacobian = np.insert(self.regularization_module_.compute_jacobian(**kwargs), 0, 0, axis=1)
+        return self.fidelity_module_.compute_jacobian(**kwargs) + self.lam_ * reg_jacobian
 
     @property
     def weights(self):
@@ -243,7 +249,7 @@ class RegularizedModule(BaseModule):
         -------
         weights: ndarray of shape (n_in, n_out)
         """
-        raise NotImplementedError()
+        return self.weights_
 
     @weights.setter
     def weights(self, weights: np.ndarray) -> None:
@@ -258,4 +264,8 @@ class RegularizedModule(BaseModule):
         weights: ndarray of shape (n_in, n_out)
             Weights to set for module
         """
-        raise NotImplementedError()
+        self.fidelity_module_.weights_ = weights
+        self.weights_ = weights
+        if self.include_intercept_:
+            weights = np.delete(weights.copy(), 0, axis=0)
+        self.regularization_module_.weights_ = weights
