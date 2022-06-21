@@ -8,6 +8,7 @@ class L2(BaseModule):
 
     Represents the function: f(w)=^||w||2_2
     """
+
     def __init__(self, weights: np.ndarray = None):
         """
         Initialize a module instance
@@ -50,6 +51,7 @@ class L2(BaseModule):
             L2 derivative with respect to self.weights at point self.weights
         """
         return self.weights_  # is actually 2 * self.weights, but we simplified it
+
 
 class L1(BaseModule):
     def __init__(self, weights: np.ndarray = None):
@@ -102,6 +104,7 @@ class LogisticModule(BaseModule):
 
     Represents the function: f(w) = - (1/m) sum_i^m[y*<x_i,w> - log(1+exp(<x_i,w>))]
     """
+
     def __init__(self, weights: np.ndarray = None):
         """
         Initialize a logistic regression module instance
@@ -130,7 +133,10 @@ class LogisticModule(BaseModule):
         output: ndarray of shape (1,)
             Value of function at point self.weights
         """
-        raise NotImplementedError()
+        # f(w) = - (1/m) sum_i^m[y*<x_i,w> - log(1+exp(<x_i,w>))]
+        m = X.shape[0]
+        item = y * np.dot(X, self.weights_) - np.log(1 + np.exp(np.dot(X, self.weights_)))  # TODO: np.inner?
+        return np.asarray(np.sum(item) / -m)
 
     def compute_jacobian(self, X: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:
         """
@@ -149,7 +155,10 @@ class LogisticModule(BaseModule):
         output: ndarray of shape (n_features,)
             Derivative of function with respect to self.weights at point self.weights
         """
-        raise NotImplementedError()
+        m = X.shape[0]
+        nom = np.exp(self.weights_ @ X.T)
+        denominator = 1 + nom
+        return (y @ X - X.T @ (nom / denominator)) / -m
 
 
 class RegularizedModule(BaseModule):
@@ -159,6 +168,7 @@ class RegularizedModule(BaseModule):
     for F(w) being some fidelity function, R(w) some regularization function and lambda
     the regularization parameter
     """
+
     def __init__(self,
                  fidelity_module: BaseModule,
                  regularization_module: BaseModule,
