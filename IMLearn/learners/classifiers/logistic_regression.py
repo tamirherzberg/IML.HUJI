@@ -5,6 +5,8 @@ from IMLearn.desent_methods import GradientDescent, learning_rate
 from IMLearn.desent_methods.modules import LogisticModule, RegularizedModule, L1, L2
 from IMLearn.metrics.loss_functions import misclassification_error
 
+NO_REGULARIZATION_flag = 'none'
+L2_flag = 'l2'
 L1_flag = 'l1'
 
 
@@ -38,7 +40,7 @@ class LogisticRegression(BaseEstimator):
     def __init__(self,
                  include_intercept: bool = True,
                  solver: GradientDescent = GradientDescent(learning_rate.FixedLR(1e-4),
-                                       max_iter=20000),
+                                                           max_iter=20000),
                  penalty: str = "none",
                  lam: float = 1,
                  alpha: float = .5):
@@ -97,14 +99,16 @@ class LogisticRegression(BaseEstimator):
         if self.include_intercept_:
             X = np.c_[np.ones(X.shape[0]), X]  # add ones column
 
-        if self.penalty_ == 'none':
+        if self.penalty_ == NO_REGULARIZATION_flag:
             self.coefs_ = self.solver_.fit(LogisticModule(init_weights), X, y)
 
         else:
             if self.penalty_ == L1_flag:
-                reg_module = L1
-            elif self.penalty_ == 'l2':
-                reg_module = L2
+                reg_module = L1(init_weights)
+            elif self.penalty_ == L2_flag:
+                reg_module = L2(init_weights)
+            else:
+                raise TypeError("Invalid penalty!")
             module = RegularizedModule(
                 LogisticModule(init_weights), reg_module, self.lam_, init_weights, self.include_intercept_)
             self.coefs_ = self.solver_.fit(module, X, y)
@@ -123,7 +127,8 @@ class LogisticRegression(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        y_prob = self.predict_proba(X)
+        return (y_prob >= self.alpha_).astype(int)
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """
@@ -139,7 +144,11 @@ class LogisticRegression(BaseEstimator):
         probabilities: ndarray of shape (n_samples,)
             Probability of each sample being classified as `1` according to the fitted model
         """
-        raise NotImplementedError()
+        def sigmoid(t): return 1 / (1 + np.exp(-t))
+        if self.include_intercept_:
+            X = np.c_[np.ones(X.shape[0]), X]  # add ones column
+        y_pred = X @ self.coefs_
+        return sigmoid(y_pred)
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
