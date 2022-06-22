@@ -184,7 +184,21 @@ def fit_logistic_regression():
     X_train, y_train, X_test, y_test = load_data()
 
     # Plotting convergence rate of logistic regression over SA heart disease data
-    raise NotImplementedError()
+    from sklearn.metrics import roc_curve, auc
+    log_reg = LogisticRegression(
+        solver=GradientDescent(FixedLR(1e-4), max_iter=20000))
+    log_reg.fit(np.array(X_train), np.array(y_train))
+    y_prob = log_reg.predict_proba(np.array(X_test))
+    fpr, tpr, thresholds = roc_curve(y_test, y_prob)
+
+    go.Figure(
+        data=[go.Scatter(x=[0, 1], y=[0, 1], mode="lines", line=dict(color="black", dash='dash'),
+                         name="Random Class Assignment"),
+              go.Scatter(x=fpr, y=tpr, mode='markers+lines', text=thresholds, name="", showlegend=False, marker_size=5,
+                         hovertemplate="<b>Threshold:</b>%{text:.3f}<br>FPR: %{x:.3f}<br>TPR: %{y:.3f}")],
+        layout=go.Layout(title=rf"$\text{{ROC Curve Of Fitted Model - AUC}}={auc(fpr, tpr):.6f}$",
+                         xaxis=dict(title=r"$\text{False Positive Rate (FPR)}$"),
+                         yaxis=dict(title=r"$\text{True Positive Rate (TPR)}$"))).show()
 
     # Fitting l1- and l2-regularized logistic regression models, using cross-validation to specify values
     # of regularization parameter
@@ -193,6 +207,6 @@ def fit_logistic_regression():
 
 if __name__ == '__main__':
     np.random.seed(0)
-    compare_fixed_learning_rates() #TODO restore
-    compare_exponential_decay_rates() #TODO restore
+    # compare_fixed_learning_rates() #TODO restore
+    # compare_exponential_decay_rates() #TODO restore
     fit_logistic_regression()

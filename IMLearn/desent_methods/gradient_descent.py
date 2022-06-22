@@ -125,14 +125,14 @@ class GradientDescent:
         x = f.weights_.copy()
         x_sum = f.weights_.copy()
         best_x = f.weights_.copy()
-        best_loss = f.compute_output()
+        best_loss = f.compute_output(X=X, y=y)
         t = 1
 
         while t <= self.max_iter_:
             # update
             x = former_x - eta.lr_step(t=t) * f.compute_jacobian(X=X, y=y)
             f.weights_ = x.copy()
-            x_loss = f.compute_output()
+            x_loss = f.compute_output(X, y)
             if x_loss < best_loss:
                 best_x = x
                 best_loss = x_loss
