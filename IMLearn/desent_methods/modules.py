@@ -235,9 +235,9 @@ class RegularizedModule(BaseModule):
             Derivative with respect to self.weights at point self.weights
         """
         if self.include_intercept_:
-            reg_jacobian = self.regularization_module_.compute_jacobian(**kwargs)
+            reg_jacobian = np.insert(self.regularization_module_.compute_jacobian(**kwargs), 0, 0)
         else:
-            reg_jacobian = np.insert(self.regularization_module_.compute_jacobian(**kwargs), 0, 0, axis=1)
+            reg_jacobian = self.regularization_module_.compute_jacobian(**kwargs)
         return self.fidelity_module_.compute_jacobian(**kwargs) + self.lam_ * reg_jacobian
 
     @property

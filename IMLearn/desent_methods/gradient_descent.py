@@ -132,7 +132,7 @@ class GradientDescent:
             # update
             x = former_x - eta.lr_step(t=t) * f.compute_jacobian(X=X, y=y)
             f.weights_ = x.copy()
-            x_loss = f.compute_output(X, y)
+            x_loss = f.compute_output(X=X, y=y)
             if x_loss < best_loss:
                 best_x = x
                 best_loss = x_loss

@@ -8,11 +8,17 @@ from IMLearn.desent_methods import GradientDescent, FixedLR, ExponentialLR
 from IMLearn.desent_methods.modules import L1, L2
 from IMLearn.learners.classifiers.logistic_regression import LogisticRegression
 from IMLearn.utils import split_train_test
+from IMLearn.model_selection import cross_validate
+from IMLearn.metrics.loss_functions import misclassification_error
 
 import plotly.graph_objects as go
 
 pio.renderers.default = "chrome"  # didn't show it to me otherwise
 pio.templates.default = "simple_white"
+
+NO_REGULARIZATION_flag = 'none'
+L2_flag = 'l2'
+L1_flag = 'l1'
 
 
 def plot_descent_path(module: Type[BaseModule],
@@ -190,7 +196,7 @@ def fit_logistic_regression():
     log_reg.fit(np.array(X_train), np.array(y_train))
     y_prob = log_reg.predict_proba(np.array(X_test))
     fpr, tpr, thresholds = roc_curve(y_test, y_prob)
-
+    alpha_star = thresholds[np.argmax(tpr - fpr)]
     go.Figure(
         data=[go.Scatter(x=[0, 1], y=[0, 1], mode="lines", line=dict(color="black", dash='dash'),
                          name="Random Class Assignment"),
@@ -199,11 +205,29 @@ def fit_logistic_regression():
         layout=go.Layout(title=rf"$\text{{ROC Curve Of Fitted Model - AUC}}={auc(fpr, tpr):.6f}$",
                          xaxis=dict(title=r"$\text{False Positive Rate (FPR)}$"),
                          yaxis=dict(title=r"$\text{True Positive Rate (TPR)}$"))).show()
-
+    print(np.round(alpha_star, 2))
     # Fitting l1- and l2-regularized logistic regression models, using cross-validation to specify values
     # of regularization parameter
-    raise NotImplementedError()
-
+    for penalty in [L1_flag, L2_flag]:
+        train_score_list, val_score_list = [], []
+        lamdas = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1]
+        for lamda in lamdas:
+            train_score, val_score = cross_validate(
+                LogisticRegression(
+                    solver=GradientDescent(FixedLR(1e-4), max_iter=20000),
+                    penalty=penalty, lam=lamda),
+                np.array(X_train), np.array(y_train), misclassification_error)
+            train_score_list.append(train_score)
+            val_score_list.append(val_score)
+        opt_lam_idx = np.argmin(val_score_list)
+        opt_lamda = lamdas[opt_lam_idx]
+        opt_log_reg = LogisticRegression(
+            solver=GradientDescent(FixedLR(1e-4), max_iter=20000),
+            penalty=penalty, lam=opt_lamda)
+        opt_log_reg.fit(np.array(X_train), np.array(y_train))
+        model_test_error = opt_log_reg.loss(np.array(X_test), np.array(y_test))
+        print(f"{penalty}: {opt_lamda} was selected as optimal lamda value,"
+              f" model's test error is {model_test_error}.")
 
 if __name__ == '__main__':
     np.random.seed(0)
