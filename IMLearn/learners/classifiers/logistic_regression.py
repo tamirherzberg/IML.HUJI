@@ -5,6 +5,7 @@ from IMLearn.desent_methods import GradientDescent, learning_rate
 from IMLearn.desent_methods.modules import LogisticModule, RegularizedModule, L1, L2
 from IMLearn.metrics.loss_functions import misclassification_error
 
+INVALID_VALUE_ERROR = "Supported penalty types are: none, l1, l2"
 NO_REGULARIZATION_flag = 'none'
 L2_flag = 'l2'
 L1_flag = 'l1'
@@ -108,7 +109,7 @@ class LogisticRegression(BaseEstimator):
             elif self.penalty_ == L2_flag:
                 reg_module = L2(init_weights)
             else:
-                raise TypeError("Invalid penalty!")
+                raise ValueError(INVALID_VALUE_ERROR)
             module = RegularizedModule(
                 LogisticModule(init_weights), reg_module, self.lam_, init_weights, self.include_intercept_)
             self.coefs_ = self.solver_.fit(module, X, y)
