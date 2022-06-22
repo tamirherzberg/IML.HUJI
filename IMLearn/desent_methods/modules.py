@@ -135,7 +135,7 @@ class LogisticModule(BaseModule):
         """
         # f(w) = - (1/m) sum_i^m[y*<x_i,w> - log(1+exp(<x_i,w>))]
         m = X.shape[0]
-        item = y * np.dot(X, self.weights_) - np.log(1 + np.exp(np.dot(X, self.weights_)))  # TODO: np.inner?
+        item = y * np.dot(X, self.weights_) - np.log(1 + np.exp(np.dot(X, self.weights_)))
         return np.asarray(np.sum(item) / -m)
 
     def compute_jacobian(self, X: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:

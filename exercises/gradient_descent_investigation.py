@@ -193,6 +193,6 @@ def fit_logistic_regression():
 
 if __name__ == '__main__':
     np.random.seed(0)
-    # compare_fixed_learning_rates() #TODO restore
-    # compare_exponential_decay_rates() #TODO restore
+    compare_fixed_learning_rates() #TODO restore
+    compare_exponential_decay_rates() #TODO restore
     fit_logistic_regression()

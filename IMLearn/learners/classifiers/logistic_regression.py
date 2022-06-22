@@ -5,6 +5,9 @@ from IMLearn.desent_methods import GradientDescent, learning_rate
 from IMLearn.desent_methods.modules import LogisticModule, RegularizedModule, L1, L2
 from IMLearn.metrics.loss_functions import misclassification_error
 
+L1_flag = 'l1'
+
+
 class LogisticRegression(BaseEstimator):
     """
     Logistic Regression Classifier
@@ -90,17 +93,21 @@ class LogisticRegression(BaseEstimator):
         if specified by `self.include_intercept_
         """
         d = X.shape[1]
-        init_weights = np.random.normal(0, 1, d) / np.sqrt(d)
+        init_weights = np.random.normal(0, 1, d) / np.sqrt(d)  # pdf requirement
         if self.include_intercept_:
             X = np.c_[np.ones(X.shape[0]), X]  # add ones column
-        if self.penalty_ == L1.__name__:
-            reg_module = L1
-        elif self.penalty_ == L2.__name__:
-            reg_module = L2
+
+        if self.penalty_ == 'none':
+            self.coefs_ = self.solver_.fit(LogisticModule(init_weights), X, y)
+
         else:
-            return self.solver_.fit(LogisticModule(init_weights), X, y)
-        module = RegularizedModule(LogisticModule(init_weights), reg_module, self.lam_, init_weights, self.include_intercept_)
-        return self.solver_.fit(module, X, y)
+            if self.penalty_ == L1_flag:
+                reg_module = L1
+            elif self.penalty_ == 'l2':
+                reg_module = L2
+            module = RegularizedModule(
+                LogisticModule(init_weights), reg_module, self.lam_, init_weights, self.include_intercept_)
+            self.coefs_ = self.solver_.fit(module, X, y)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
