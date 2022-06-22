@@ -1,9 +1,9 @@
 from typing import NoReturn
 import numpy as np
 from IMLearn import BaseEstimator
-from IMLearn.desent_methods import GradientDescent
+from IMLearn.desent_methods import GradientDescent, learning_rate
 from IMLearn.desent_methods.modules import LogisticModule, RegularizedModule, L1, L2
-
+from IMLearn.metrics.loss_functions import misclassification_error
 
 class LogisticRegression(BaseEstimator):
     """
@@ -34,7 +34,8 @@ class LogisticRegression(BaseEstimator):
 
     def __init__(self,
                  include_intercept: bool = True,
-                 solver: GradientDescent = GradientDescent(),
+                 solver: GradientDescent = GradientDescent(learning_rate.FixedLR(1e-4),
+                                       max_iter=20000),
                  penalty: str = "none",
                  lam: float = 1,
                  alpha: float = .5):
@@ -88,7 +89,18 @@ class LogisticRegression(BaseEstimator):
         Fits model using specified `self.optimizer_` passed when instantiating class and includes an intercept
         if specified by `self.include_intercept_
         """
-        raise NotImplementedError()
+        d = X.shape[1]
+        init_weights = np.random.normal(0, 1, d) / np.sqrt(d)
+        if self.include_intercept_:
+            X = np.c_[np.ones(X.shape[0]), X]  # add ones column
+        if self.penalty_ == L1.__name__:
+            reg_module = L1
+        elif self.penalty_ == L2.__name__:
+            reg_module = L2
+        else:
+            return self.solver_.fit(LogisticModule(init_weights), X, y)
+        module = RegularizedModule(LogisticModule(init_weights), reg_module, self.lam_, init_weights, self.include_intercept_)
+        return self.solver_.fit(module, X, y)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -139,4 +151,4 @@ class LogisticRegression(BaseEstimator):
         loss : float
             Performance under misclassification error
         """
-        raise NotImplementedError()
+        return misclassification_error(y, self.predict(X))
