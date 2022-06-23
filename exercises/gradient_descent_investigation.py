@@ -139,7 +139,7 @@ def compare_exponential_decay_rates(init: np.ndarray = np.array([np.sqrt(2), np.
             name=f'gamma = {gamma}', mode='markers+lines'
         ))
         if gamma == .95:
-            des_path_title = f"{L2.__name__} Objective Descent Path<br>" \
+            des_path_title = f"{L1.__name__} Objective Descent Path<br>" \
                              f"<sup>eta = {eta}, gamma = {gamma}</sup>"
             desc_plot = plot_descent_path(L1, np.array(weights), des_path_title)
         min_gamma_norm = min(vals)
@@ -147,7 +147,7 @@ def compare_exponential_decay_rates(init: np.ndarray = np.array([np.sqrt(2), np.
             lowest_norm = min_gamma_norm
     # Plot algorithm's convergence for the different values of gamma
     conv_rate_plot.show()
-    print(f"Minimum norm achieved using exponential decay is {lowest_norm}")  # TODO: make sure
+    print(f"Minimum norm achieved using exponential decay is {lowest_norm}")
     # Plot descent path for gamma=0.95
     desc_plot.show()
 
@@ -204,7 +204,7 @@ def fit_logistic_regression():
         layout=go.Layout(title=rf"$\text{{ROC Curve Of Fitted Model - AUC}}={auc(fpr, tpr):.6f}$",
                          xaxis=dict(title=r"$\text{False Positive Rate (FPR)}$"),
                          yaxis=dict(title=r"$\text{True Positive Rate (TPR)}$"))).show()
-    print(np.round(alpha_star, 2))
+    print(f"alpha_star = {np.round(alpha_star, 2)}")
     # Fitting l1- and l2-regularized logistic regression models, using cross-validation to specify values
     # of regularization parameter
     for penalty in [L1_flag, L2_flag]:
@@ -230,6 +230,6 @@ def fit_logistic_regression():
 
 if __name__ == '__main__':
     np.random.seed(0)
-    compare_fixed_learning_rates() #TODO restore
-    # compare_exponential_decay_rates() #TODO restore
+    compare_fixed_learning_rates()
+    compare_exponential_decay_rates()
     fit_logistic_regression()
