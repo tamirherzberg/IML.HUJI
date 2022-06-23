@@ -98,8 +98,11 @@ def get_gd_state_recorder_callback() -> Tuple[Callable[[], None], List[np.ndarra
 def compare_fixed_learning_rates(init: np.ndarray = np.array([np.sqrt(2), np.e / 3]),
                                  etas: Tuple[float] = (1, .1, .01, .001)):
     for objective in [L1, L2]:
+        conv_rate_plot = go.Figure()
         obj_min_loss = np.inf
         for eta in etas:
+            conv_rate_plot.update_layout(title=f"Gradient Descent Convergence Rate<br>"
+                             f"<sup>{objective.__name__} Objective</sup>")
             f = objective(init.copy())
             state_callback, vals, weights = get_gd_state_recorder_callback()
             gd = GradientDescent(learning_rate=FixedLR(eta), callback=state_callback)
@@ -107,16 +110,12 @@ def compare_fixed_learning_rates(init: np.ndarray = np.array([np.sqrt(2), np.e /
             des_path_title = f"{objective.__name__} Objective Descent Path<br>" \
                              f"<sup>Eta = {eta}</sup>"
             plot_descent_path(objective, np.array(weights), des_path_title).show()
-            convergence_rate_plot = go.Figure(data=[
-                go.Scatter(x=np.arange(len(vals)), y=np.array(vals), mode='markers')
-            ]).update_layout(
-                title=f"Gradient Descent Convergence Rate<br>"
-                      f"<sup>{objective.__name__} Objective, Eta = {eta}</sup>"
-            )
-            convergence_rate_plot.show()
+            conv_rate_plot.add_trace(
+                go.Scatter(x=np.arange(len(vals)), y=np.array(vals), mode='markers+lines', name=f"eta = {eta}"))
             eta_min_val = min(vals)
             if eta_min_val < obj_min_loss:
                 obj_min_loss = eta_min_val
+        conv_rate_plot.show()
         print(f"Minimum loss achieved in {objective.__name__} module is {obj_min_loss}")  # TODO: make sure
 
 
@@ -137,7 +136,7 @@ def compare_exponential_decay_rates(init: np.ndarray = np.array([np.sqrt(2), np.
         min_solution = gd.fit(f, X=np.empty(0), y=np.empty(0))
         conv_rate_plot.add_trace(go.Scatter(
             x=np.arange(len(vals)), y=np.array(vals),
-            name=f'gamma = {gamma}', mode='markers'
+            name=f'gamma = {gamma}', mode='markers+lines'
         ))
         if gamma == .95:
             des_path_title = f"{L2.__name__} Objective Descent Path<br>" \
