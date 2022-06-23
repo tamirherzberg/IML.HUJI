@@ -194,8 +194,8 @@ def fit_logistic_regression():
     log_reg = LogisticRegression(
         solver=GradientDescent(FixedLR(1e-4), max_iter=20000))
     log_reg.fit(np.array(X_train), np.array(y_train))
-    y_prob = log_reg.predict_proba(np.array(X_test))
-    fpr, tpr, thresholds = roc_curve(y_test, y_prob)
+    y_prob = log_reg.predict_proba(np.array(X_train))
+    fpr, tpr, thresholds = roc_curve(y_train, y_prob)
     alpha_star = thresholds[np.argmax(tpr - fpr)]
     go.Figure(
         data=[go.Scatter(x=[0, 1], y=[0, 1], mode="lines", line=dict(color="black", dash='dash'),
@@ -231,6 +231,6 @@ def fit_logistic_regression():
 
 if __name__ == '__main__':
     np.random.seed(0)
-    # compare_fixed_learning_rates() #TODO restore
+    compare_fixed_learning_rates() #TODO restore
     # compare_exponential_decay_rates() #TODO restore
     fit_logistic_regression()

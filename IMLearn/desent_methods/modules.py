@@ -95,7 +95,7 @@ class L1(BaseModule):
         output: ndarray of shape (n_in,)
             L1 derivative with respect to self.weights at point self.weights
         """
-        return np.sign(self.weights_)
+        return 2 * np.sign(self.weights_) # todo: simplify?]
 
 
 class LogisticModule(BaseModule):
