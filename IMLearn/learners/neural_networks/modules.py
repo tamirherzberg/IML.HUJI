@@ -2,6 +2,8 @@ import numpy as np
 from IMLearn.base.base_module import BaseModule
 from IMLearn.metrics.loss_functions import cross_entropy, softmax
 
+WEIGHTS_DISTRIBUTION_MEAN = 0
+
 
 class FullyConnectedLayer(BaseModule):
     """
@@ -49,7 +51,16 @@ class FullyConnectedLayer(BaseModule):
         Weights are randomly initialized following N(0, 1/input_dim)
         """
         super().__init__()
-        raise NotImplementedError()
+        self.output_dim_ = output_dim
+        self.activation_ = activation
+        self.include_intercept_ = include_intercept
+        self.input_dim_ = input_dim
+        if include_intercept:
+            self.input_dim_ += 1
+        self.weights = np.random.normal(
+            loc=WEIGHTS_DISTRIBUTION_MEAN,
+            scale=(1 / self.input_dim_),
+            size=(self.input_dim_, self.output_dim_))
 
     def compute_output(self, X: np.ndarray, **kwargs) -> np.ndarray:
         """
@@ -147,7 +158,14 @@ class CrossEntropyLoss(BaseModule):
         output: ndarray of shape (n_samples,)
             cross-entropy loss value of given X and y
         """
-        raise NotImplementedError()
+        e_k = encode_one_hot(X.shape[1], y)
+        m = y.shape[0]
+        out = np.zeros(m)
+        s = softmax(X)
+        for i in range(m):
+            out[i] = cross_entropy(e_k[i], s[i])
+        return out
+    # TODO: make sure it is correct
 
     def compute_jacobian(self, X: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:
         """
@@ -166,4 +184,19 @@ class CrossEntropyLoss(BaseModule):
         output: ndarray of shape (n_samples, input_dim)
             derivative of cross-entropy loss with respect to given input
         """
-        raise NotImplementedError()
+        d = X.shape[1]
+        s = softmax(X)
+        e_k = self.encode_one_hot(d, y)
+        return s - e_k
+
+    def encode_one_hot(self, d: int, y: np.ndarray) -> np.ndarray:
+        """
+        One hot encodes according to given dimensions and 1 indices
+        @param d: number of cols
+        @param y: indicates the indices to put 1 in
+        @return: m X d ndarray with one hot encoding of y, where m is y row dim
+        """
+        m = y.shape[0]
+        e_k = np.zeros([m, d])
+        e_k[np.arange(m), y] = 1
+        return e_k
