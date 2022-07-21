@@ -101,7 +101,9 @@ class FullyConnectedLayer(BaseModule):
         if self.include_intercept_:
             _X = np.c_[np.ones(X.shape[0]), X]  # add ones column
         # Jacobian of composition:
-        # TODO: return
+        a = _X @ self.weights
+        return np.einsum('ij,ik->ijk', _X, self.activation_.compute_jacobian(X=a, **kwargs))
+        # TODO: make sure return
 
 
 class ReLU(BaseModule):
@@ -174,7 +176,6 @@ class CrossEntropyLoss(BaseModule):
         for i in range(m):
             out[i] = cross_entropy(e_k[i], s[i])
         return out
-    # TODO: make sure it is correct
 
     def compute_jacobian(self, X: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:
         """
