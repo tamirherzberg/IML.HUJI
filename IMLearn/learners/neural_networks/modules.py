@@ -82,7 +82,6 @@ class FullyConnectedLayer(BaseModule):
             _X = np.c_[np.ones(X.shape[0]), X]  # add ones column
         return self.activation_.compute_output(X=_X @ self.weights, **kwargs)
 
-
     def compute_jacobian(self, X: np.ndarray, **kwargs) -> np.ndarray:
         """
         Compute module derivative with respect to self.weights at point self.weights
@@ -101,9 +100,8 @@ class FullyConnectedLayer(BaseModule):
         if self.include_intercept_:
             _X = np.c_[np.ones(X.shape[0]), X]  # add ones column
         # Jacobian of composition:
-        a = _X @ self.weights
-        return np.einsum('ij,ik->ijk', _X, self.activation_.compute_jacobian(X=a, **kwargs))
-        # TODO: make sure return
+        a = _X @ self.weights.T
+        return self.activation_.compute_jacobian(X=a, **kwargs) @ X
 
 
 class ReLU(BaseModule):
@@ -195,9 +193,8 @@ class CrossEntropyLoss(BaseModule):
             derivative of cross-entropy loss with respect to given input
         """
         d = X.shape[1]
-        s = softmax(X)
         e_k = self.encode_one_hot(d, y)
-        return s - e_k
+        return softmax(X) - e_k
 
     def encode_one_hot(self, d: int, y: np.ndarray) -> np.ndarray:
         """
