@@ -62,7 +62,7 @@ class FullyConnectedLayer(BaseModule):
             scale=(1 / self.input_dim_),
             size=(self.input_dim_, self.output_dim_))
 
-    def compute_output(self, X: np.ndarray, **kwargs) -> np.ndarray:
+    def compute_output(self, X: np.ndarray, include_pre_activation=False, **kwargs) -> np.ndarray:
         """
         Compute activation(weights @ x) for every sample x: output value of layer at point
         self.weights and given input
@@ -80,7 +80,10 @@ class FullyConnectedLayer(BaseModule):
         _X = X
         if self.include_intercept_:
             _X = np.c_[np.ones(X.shape[0]), X]  # add ones column
-        return self.activation_.compute_output(X=_X @ self.weights, **kwargs)
+        pre_activation = _X @ self.weights
+        post_activation = self.activation_.compute_output(
+            X=pre_activation, **kwargs)
+        return (pre_activation, post_activation) if include_pre_activation else post_activation
 
     def compute_jacobian(self, X: np.ndarray, **kwargs) -> np.ndarray:
         """
