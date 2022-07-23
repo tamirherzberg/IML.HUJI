@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from copy import deepcopy
 
+
 def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .75) \
         -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
     """
@@ -63,4 +64,13 @@ def confusion_matrix(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         A confusion matrix where the value of the i,j index shows the number of times value `i` was found in vector `a`
         while value `j` vas found in vector `b`
     """
-    raise NotImplementedError()
+    a_unique_vals = sorted(list(set(a)))  # sort unique values only
+    b_unique_vals = sorted(list(set(b)))
+    a_dict = {val: ind for ind, val in enumerate(a_unique_vals)}
+    b_dict = {val: ind for ind, val in enumerate(b_unique_vals)}
+    conf_mat = np.zeros([len(a_unique_vals), len(b_unique_vals)])
+    for k in range(a.shape[0]):
+        i = a_dict[a[k]]
+        j = b_dict[b[k]]
+        conf_mat[i][j] += 1
+    return conf_mat
