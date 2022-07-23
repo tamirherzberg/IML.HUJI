@@ -49,7 +49,7 @@ class NeuralNetwork(BaseEstimator, BaseModule):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        self.solver_.fit(self, X, y)
+        self.weights_ = self.solver_.fit(self, X, y)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -110,7 +110,7 @@ class NeuralNetwork(BaseEstimator, BaseModule):
         -----
         Function stores all intermediate values in the `self.pre_activations_` and `self.post_activations_` arrays
         """
-        return self._loss(X, y)
+        return np.array(self._loss(X, y))
 
     def compute_prediction(self, X: np.ndarray):
         """
@@ -158,10 +158,24 @@ class NeuralNetwork(BaseEstimator, BaseModule):
         """
         partial_derivatives = []
         o_T = self.post_activations_[-1]
-        delta_T = self.loss_fn_.compute_jacobian(X=o_T, y=y)
         T = len(self.modules_)
+        delta_t = self.loss_fn_.compute_jacobian(X=o_T, y=y)  # t= T
         for t in range(T - 1, 0, -1):
-            pass #todo
+            cur_module = self.modules_[t]
+            if not cur_module.activation_:
+                j_a_t = np.ones_like(self.pre_activations_[t])
+            else:
+                j_a_t = cur_module.activation_.compute_jacobian(X=self.pre_activations_[t])
+            delta_dot_j_a_t = delta_t * j_a_t
+            if cur_module.include_intercept_:
+                numerator = np.c_[np.ones(self.post_activations_[t].shape[1]), self.post_activations_[t].T] @ (
+                    delta_dot_j_a_t)
+            else:
+                numerator = self.post_activations_[t].T @ delta_dot_j_a_t
+            partial_derivatives.append(numerator / X.shape[0])
+            delta_t = delta_dot_j_a_t @ cur_module.weights_.T[:, 1:]
+        partial_derivatives.reverse()
+        return self._flatten_parameters(partial_derivatives)
 
     @property
     def weights(self) -> np.ndarray:
