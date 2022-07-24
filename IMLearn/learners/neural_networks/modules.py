@@ -170,14 +170,8 @@ class CrossEntropyLoss(BaseModule):
         output: ndarray of shape (n_samples,)
             cross-entropy loss value of given X and y
         """
-        return cross_entropy(y, softmax(X))
-        # e_k = self.encode_one_hot(X.shape[1], y)
-        # m = y.shape[0]
-        # out = np.zeros(m)
-        # s = softmax(X)
-        # for i in range(m):
-        #     out[i] = cross_entropy(e_k[i], s[i])
-        # return out
+        return cross_entropy(y, self.encode_one_hot(softmax(X)))
+
 
     def compute_jacobian(self, X: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:
         """
@@ -196,18 +190,11 @@ class CrossEntropyLoss(BaseModule):
         output: ndarray of shape (n_samples, input_dim)
             derivative of cross-entropy loss with respect to given input
         """
-        # d = X.shape[1]
-        # e_k = self.encode_one_hot(d, y)
-        # return softmax(X) - e_k
-        soft = softmax(X)
+        d = X.shape[1]
+        e_k = self.encode_one_hot(y)
+        return softmax(X) - e_k
 
-        # b does one-hot encoding of y
-        b = np.zeros_like(soft)
-        b[np.arange(soft.shape[0]), y] = 1
-
-        return soft - b
-
-    def encode_one_hot(self, d: int, y: np.ndarray) -> np.ndarray:
+    def encode_one_hot(self, y: np.ndarray) -> np.ndarray:
         """
         One hot encodes according to given dimensions and 1 indices
         @param d: number of cols
@@ -215,6 +202,6 @@ class CrossEntropyLoss(BaseModule):
         @return: m X d ndarray with one hot encoding of y, where m is y row dim
         """
         m = y.shape[0]
-        e_k = np.zeros([m, d])
+        e_k = np.zeros([m, y.max()+1])
         e_k[np.arange(m), y] = 1
         return e_k
