@@ -49,7 +49,7 @@ class NeuralNetwork(BaseEstimator, BaseModule):
         y : ndarray of shape (n_samples, )
             Responses of input data to fit to
         """
-        self.weights_ = self.solver_.fit(self, X, y)
+        self.solver_.fit(self, X, y)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -129,10 +129,17 @@ class NeuralNetwork(BaseEstimator, BaseModule):
         """
         self.pre_activations_.append(X)  # todo: make sure we don't add bias
         for module in self.modules_:
-            pre_activation, post_activation = module.compute_output(X=X, include_pre_activation=True)
-            self.pre_activations_.append(pre_activation)
-            self.post_activations_.append(post_activation)
-            X = post_activation
+            # if module.include_intercept_:
+            #     _X = np.c_[np.ones(X.shape[0]), X]  # add ones column
+            # else:
+            #     _X = X
+            if not module.activation_:
+                pre_activation, post_activation = X, X
+            else:
+                pre_activation, post_activation = module.compute_output(X=X, include_pre_activation=True)
+                self.pre_activations_.append(pre_activation)
+                self.post_activations_.append(post_activation)
+                X = post_activation
         return X
 
     def compute_jacobian(self, X: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:
@@ -156,6 +163,7 @@ class NeuralNetwork(BaseEstimator, BaseModule):
         Function depends on values calculated in forward pass and stored in
         `self.pre_activations_` and `self.post_activations_`
         """
+        self.compute_output(X=X, y=y)
         partial_derivatives = []
         o_T = self.post_activations_[-1]
         T = len(self.modules_)
@@ -163,19 +171,26 @@ class NeuralNetwork(BaseEstimator, BaseModule):
         for t in range(T - 1, 0, -1):
             cur_module = self.modules_[t]
             if not cur_module.activation_:
-                j_a_t = np.ones_like(self.pre_activations_[t])
+                j_a_t = np.ones_like(self.pre_activations_[t - 1])
             else:
-                j_a_t = cur_module.activation_.compute_jacobian(X=self.pre_activations_[t])
-            delta_dot_j_a_t = delta_t * j_a_t
+                j_a_t = cur_module.activation_.compute_jacobian(X=self.pre_activations_[t - 1])
+
+            post_activation = self.post_activations_[t - 1].T
             if cur_module.include_intercept_:
-                numerator = np.c_[np.ones(self.post_activations_[t].shape[1]), self.post_activations_[t].T] @ (
-                    delta_dot_j_a_t)
-            else:
-                numerator = self.post_activations_[t].T @ delta_dot_j_a_t
+                post_activation = np.concatenate((np.ones((1, post_activation.shape[1])), post_activation), axis=0)
+            delta_dot_j_a_t = delta_t * j_a_t
+            numerator = post_activation @ delta_dot_j_a_t
+            # if cur_module.include_intercept_:
+            #     # todo: make sure it's t-1 down there
+            #     numerator = np.c_[np.ones(self.post_activations_[t-1].shape[1]), self.post_activations_[t-1].T] @ (
+            #         delta_dot_j_a_t)
+            # else:
+            #     numerator = self.post_activations_[t].T @ delta_dot_j_a_t
             partial_derivatives.append(numerator / X.shape[0])
-            delta_t = delta_dot_j_a_t @ cur_module.weights_.T[:, 1:]
+            delta_t = (delta_t * j_a_t) @ (cur_module.weights_.T[:, 1:])
         partial_derivatives.reverse()
         return self._flatten_parameters(partial_derivatives)
+
 
     @property
     def weights(self) -> np.ndarray:
