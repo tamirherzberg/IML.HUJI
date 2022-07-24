@@ -11,6 +11,10 @@ from utils import *
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import plotly.io as pio
+
+NEURON_NUM = 16
+GIVEN_FIXED_LR = 0.1
+
 pio.templates.default = "simple_white"
 
 
@@ -51,7 +55,7 @@ def generate_nonlinear_data(
     test_y : ndarray of shape (floor((1-train_proportion) * n_samples), )
         Responses of test samples
     """
-    X, y = np.zeros((samples_per_class*n_classes, n_features)), np.zeros(samples_per_class*n_classes, dtype='uint8')
+    X, y = np.zeros((samples_per_class * n_classes, n_features)), np.zeros(samples_per_class * n_classes, dtype='uint8')
     for j in range(n_classes):
         ix = range(samples_per_class * j, samples_per_class * (j + 1))
         r = np.linspace(0.0, 1, samples_per_class)  # radius
@@ -82,9 +86,10 @@ def animate_decision_boundary(nn: NeuralNetwork, weights: List[np.ndarray], lims
         nn.weights = w
         frames.append(go.Frame(data=[decision_surface(nn.predict, lims[0], lims[1], density=40, showscale=False),
                                      go.Scatter(x=X[:, 0], y=X[:, 1], mode="markers",
-                                                marker=dict(color=y, colorscale=custom, line=dict(color="black", width=1)))
+                                                marker=dict(color=y, colorscale=custom,
+                                                            line=dict(color="black", width=1)))
                                      ],
-                               layout=go.Layout(title=rf"$\text{{{title} Iteration {i+1}}}$")))
+                               layout=go.Layout(title=rf"$\text{{{title} Iteration {i + 1}}}$")))
 
     fig = go.Figure(data=frames[0]["data"], frames=frames[1:],
                     layout=go.Layout(title=frames[0]["layout"]["title"]))
@@ -104,18 +109,35 @@ if __name__ == '__main__':
     go.Figure(data=[go.Scatter(x=train_X[:, 0], y=train_X[:, 1], mode='markers',
                                marker=dict(color=train_y, colorscale=custom, line=dict(color="black", width=1)))],
               layout=go.Layout(title=r"$\text{Train Data}$", xaxis=dict(title=r"$x_1$"), yaxis=dict(title=r"$x_2$"),
-                               width=400, height=400))\
-        .write_image(f"../figures/nonlinear_data.png")
+                               width=400, height=400)) \
+        .write_image(f"../datasets/nonlinear_data.png")
 
     # ---------------------------------------------------------------------------------------------#
     # Question 1: Fitting simple network with two hidden layers                                    #
     # ---------------------------------------------------------------------------------------------#
-    raise NotImplementedError()
+    layers = [
+        FullyConnectedLayer(input_dim=n_features, output_dim=NEURON_NUM, activation=ReLU(), include_intercept=True),
+        FullyConnectedLayer(input_dim=NEURON_NUM, output_dim=NEURON_NUM, activation=ReLU(), include_intercept=True),
+        FullyConnectedLayer(input_dim=NEURON_NUM, output_dim=n_classes, activation=None, include_intercept=True),
+    ]
+    network_with_hl = NeuralNetwork(modules=layers,
+                                    loss_fn=CrossEntropyLoss(),
+                                    solver=GradientDescent(learning_rate=FixedLR(base_lr=GIVEN_FIXED_LR),
+                                                           max_iter=5000))
+    network_with_hl.fit(train_X, train_y)
+    print(accuracy(y_true=test_y, y_pred=network_with_hl.predict(test_X)))
 
     # ---------------------------------------------------------------------------------------------#
     # Question 2: Fitting a network with no hidden layers                                          #
     # ---------------------------------------------------------------------------------------------#
-    raise NotImplementedError()
+    network_without_hl = NeuralNetwork(
+        modules=[
+            FullyConnectedLayer(input_dim=n_features, output_dim=n_classes, activation=None, include_intercept=False)
+        ], loss_fn=CrossEntropyLoss(), solver=GradientDescent(
+            max_iter=5000, learning_rate=FixedLR(base_lr=GIVEN_FIXED_LR))
+    )
+    network_without_hl.fit(train_X, train_y)
+    print(accuracy(y_true=test_y, y_pred=network_without_hl.predict(test_X)))
 
     # ---------------------------------------------------------------------------------------------#
     # Question 3+4: Plotting network convergence process                                           #
